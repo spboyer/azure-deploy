@@ -1,6 +1,6 @@
 ---
 name: azure-deploy
-description: Guide for deploying applications to Azure App Service, Azure Functions, and Static Web Apps. Detects application type, recommends the optimal Azure service, provides local preview capabilities, and handles single-service deployments with Azure CLI or multi-service deployments with Azure Developer CLI (azd) and Infrastructure as Code.
+description: Deploy applications to Azure App Service, Azure Functions, and Static Web Apps. USE THIS SKILL when users want to deploy, publish, host, or run their application on Azure. This skill detects application type (React, Vue, Angular, Next.js, Python, .NET, Java, etc.), recommends the optimal Azure service, provides local preview capabilities, and guides deployment. Trigger phrases include "deploy to Azure", "host on Azure", "publish to Azure", "run on Azure", "get this running in the cloud", "deploy my app", "Azure deployment", "set up Azure hosting", "deploy to App Service", "deploy to Functions", "deploy to Static Web Apps", "preview locally", "test before deploying", "what Azure service should I use", "help me deploy", etc. Also handles multi-service deployments with Azure Developer CLI (azd) and Infrastructure as Code when complexity is detected.
 ---
 
 # Azure Deploy Skill
