@@ -303,7 +303,7 @@ swa deploy ./dist \
 
 **Smart defaults:**
 - SKU: `Free` for dev/test, `Standard` for production
-- Location: Choose from available SWA regions
+- Location: SWA has limited regions - use `centralus`, `eastus2`, `westus2`, `westeurope`, or `eastasia`
 
 See [Static Web Apps Guide](./reference/static-web-apps.md) for detailed configuration.
 

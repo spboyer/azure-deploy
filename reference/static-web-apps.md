@@ -20,14 +20,14 @@ Azure Static Web Apps provides:
 ## Quick Start
 
 ```bash
-# 1. Create resource group
-az group create --name myswa-rg --location eastus
+# Create resource group
+az group create --name myswa-rg --location centralus
 
-# 2. Create Static Web App
+# Create Static Web App (limited regions: centralus, eastus2, westus2, westeurope, eastasia)
 az staticwebapp create \
   --name myswa \
   --resource-group myswa-rg \
-  --location eastus \
+  --location centralus \
   --sku Free
 
 # 3. Get deployment token
