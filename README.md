@@ -113,10 +113,45 @@ azd up        # Provision + deploy
 The skill includes test scripts to validate functionality:
 
 ```bash
-# Test app detection logic
+# Test app type detection logic
 ./test-detection.sh
 
+# Test local preview/dev servers (no Azure required)
+./test-local.sh
+
 # Test actual Azure deployments (requires Azure subscription)
+./test-deploy.sh
+```
+
+### Test Coverage
+
+| Script | What It Tests | Azure Required |
+|--------|---------------|----------------|
+| `test-detection.sh` | App type detection, service recommendations | No |
+| `test-local.sh` | Local dev servers (`npm run dev`, `flask run`, `func start`) | No |
+| `test-deploy.sh` | End-to-end Azure deployment with curl validation | Yes |
+
+### Test Scenarios
+
+The `test-scenarios/` folder contains sample projects:
+
+| Scenario | Type | Local Test | Deploy Target |
+|----------|------|------------|---------------|
+| `static-html/` | Static site | Python HTTP server | Static Web Apps |
+| `react-app/` | Vite + React | `npm run dev` | Static Web Apps |
+| `python-flask/` | Flask API | `flask run` | App Service |
+| `azure-functions/` | Node.js v4 Functions | `func start` | Azure Functions |
+| `nextjs-ssr/` | Next.js SSR | `npm run dev` | App Service |
+| `monorepo/` | Multi-service | N/A | azd + IaC |
+
+### Running Tests
+
+```bash
+# Quick validation (no Azure)
+./test-detection.sh && ./test-local.sh
+
+# Full validation (requires Azure subscription + login)
+az login
 ./test-deploy.sh
 ```
 
@@ -134,9 +169,11 @@ Detailed guides are available in the `reference/` folder:
 
 ## Requirements
 
-- **Azure subscription** (for deployment)
+- **Azure subscription** (for deployment only)
 - **Azure CLI** (skill can install)
-- **Node.js 18+** (for SWA CLI, Functions Core Tools)
+- **Node.js 22 LTS** (recommended for SWA CLI, Functions Core Tools)
+- **Python 3.10+** (for Flask/Django apps)
+- **Azure Functions Core Tools** (for Functions development)
 
 ## Known Limitations
 

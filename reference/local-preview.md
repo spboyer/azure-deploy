@@ -4,13 +4,31 @@ Test your application locally before deploying to Azure. No Azure authentication
 
 ---
 
+## Quick Test
+
+Run the included test script to verify all local dev servers work:
+
+```bash
+./test-local.sh
+```
+
+This tests:
+- Static HTML with Python HTTP server
+- React/Vite with `npm run dev`
+- Python Flask with `flask run`
+- Azure Functions with `func start`
+
+---
+
 ## Quick Reference
 
-| Service Target | Local Tool | Command |
-|----------------|------------|---------|
-| Static Web Apps | SWA CLI | `swa start` |
-| Azure Functions | Functions Core Tools | `func start` |
-| App Service | Framework dev server | `npm run dev` / `flask run` / etc. |
+| Service Target | Local Tool | Command | Default Port |
+|----------------|------------|---------|--------------|
+| Static Web Apps | SWA CLI | `swa start` | 4280 |
+| Azure Functions | Functions Core Tools | `func start` | 7071 |
+| App Service (Node) | npm | `npm run dev` | varies |
+| App Service (Python) | Flask | `flask run` | 5000 |
+| App Service (.NET) | dotnet | `dotnet run` | 5000 |
 
 ---
 
