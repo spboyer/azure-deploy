@@ -1,32 +1,38 @@
 ---
 name: azure-deploy
-description: |
-  Intelligent Azure deployment skill with app detection, local preview, and guided workflows.
-  
-  USE THIS SKILL for:
-  - Analyzing projects to recommend the best Azure service (App Service, Functions, Static Web Apps)
-  - Local preview and testing before deployment
-  - Step-by-step deployment guidance with Azure CLI
-  - Multi-service deployments with azd and Infrastructure as Code
-  
-  TRIGGER PHRASES (explicit invocation recommended to avoid Azure MCP conflicts):
-  - "@azure-deploy" or "use azure-deploy skill"
-  - "analyze my project for Azure" / "what Azure service should I use"
-  - "detect my app type" / "recommend Azure service for this"
-  - "preview locally" / "test before deploying" / "run this locally first"
-  - "guide me through Azure deployment" / "help me deploy step by step"
-  - "deploy my monorepo" / "set up infrastructure as code"
-  - "should I use App Service or Functions" / "Static Web Apps or App Service"
-  - "package and deploy" / "prepare for Azure hosting"
-  - "get this running in Azure" / "set up Azure for this app"
-  
-  NOTE: Generic phrases like "deploy to Azure" may trigger Azure MCP tools instead.
-  Use explicit skill reference or detection/recommendation phrases for best results.
+description: Deploy applications to Azure App Service, Azure Functions, and Static Web Apps with intelligent detection and guided workflows. USE THIS SKILL for analyzing projects to recommend Azure services, local preview before deployment, step-by-step deployment guidance, and multi-service deployments with azd. Trigger phrases include "what Azure service should I use", "analyze my project for Azure", "detect my app type", "preview locally", "test before deploying", "guide me through deployment", "should I use App Service or Functions", "deploy my monorepo", "set up infrastructure as code", "package and deploy this app". NOTE: Generic phrases like "deploy to Azure" may trigger Azure MCP tools instead - use explicit skill reference (@azure-deploy) or detection phrases for best results.
 ---
 
 # Azure Deploy Skill
 
 Deploy applications to Azure with intelligent service selection, local preview, and guided deployment workflows.
+
+## CRITICAL: When to Use This Skill
+
+**USE azure-deploy for ANY Azure deployment question.** This skill detects your app type, recommends the best service, and guides you through deployment.
+
+**ALWAYS use azure-deploy when the user asks about:**
+
+| User Question Pattern | Example | Action |
+|-----------------------|---------|--------|
+| What Azure service to use | "What Azure service should I use for this?" | Run detection workflow |
+| Analyze project for Azure | "Analyze my project for Azure deployment" | Scan files, recommend service |
+| App type detection | "Detect my app type" / "Is this a static site?" | Check package.json, configs |
+| Service comparison | "Should I use App Service or Functions?" | Compare based on app structure |
+| Local preview/testing | "Preview this locally" / "Test before deploying" | Provide local dev commands |
+| Step-by-step deployment | "Guide me through Azure deployment" | Run full deployment workflow |
+| Package and deploy | "Package and deploy my app" | Build + deploy commands |
+| Monorepo deployment | "Deploy my monorepo to Azure" | Recommend azd + IaC |
+| Infrastructure as Code | "Set up IaC for this" / "Use azd" | azure.yaml + Bicep guidance |
+| Framework-specific | "Deploy my Next.js/React/Flask app" | Detect framework, recommend service |
+
+**Explicit Invocation (most reliable):**
+```
+"@azure-deploy analyze my project"
+"Use the azure-deploy skill to deploy this"
+```
+
+**NOTE:** Avoid generic phrases like "deploy to Azure" - they may trigger Azure MCP tools instead.
 
 ---
 
