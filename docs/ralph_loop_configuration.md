@@ -51,18 +51,28 @@ Ralph will be automatically detected in these locations:
 
 ### 2. Install GitHub Copilot CLI
 
-Ralph requires GitHub Copilot CLI to execute tests:
+Ralph requires GitHub Copilot CLI to execute tests. Install using one of these methods:
 
 ```bash
-# Using Homebrew (macOS/Linux)
+# Using Homebrew (macOS/Linux) - for new installation
+brew install copilot
+
+# Or upgrade if already installed
 brew upgrade copilot
 
 # Using npm (cross-platform)
 npm i -g @github/copilot
+
+# Or using GitHub CLI extension
+gh extension install github/gh-copilot
 ```
 
 Verify installation:
 ```bash
+# If installed via Homebrew/npm
+copilot --version
+
+# If installed via gh extension
 gh copilot --version
 ```
 
@@ -591,17 +601,30 @@ az group delete --name <resource-group-name> --yes
 
 ### Copilot CLI Issues
 
-**Error**: `gh: command not found` or `copilot: command not found`
+**Error**: `copilot: command not found` or `gh copilot: command not found`
 
 **Solution**:
 ```bash
-# Install/update GitHub CLI
+# Option 1: Install standalone Copilot CLI via Homebrew
+brew install copilot
+
+# Option 2: Install via npm
+npm i -g @github/copilot
+
+# Option 3: Install as GitHub CLI extension
+# First install GitHub CLI if needed
 brew install gh  # macOS
 # or
 winget install GitHub.cli  # Windows
 
-# Install Copilot CLI extension
+# Then install Copilot extension
 gh extension install github/gh-copilot
+
+# Verify installation
+copilot --version
+# or if using gh extension:
+gh copilot --version
+```
 
 # Verify
 gh copilot --version

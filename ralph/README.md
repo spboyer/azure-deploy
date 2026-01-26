@@ -15,6 +15,13 @@ Before running Ralph tests:
 
 2. **Install GitHub Copilot CLI**:
    ```bash
+   # Install via Homebrew (recommended)
+   brew install copilot
+   
+   # Or via npm
+   npm i -g @github/copilot
+   
+   # Or as GitHub CLI extension
    gh extension install github/gh-copilot
    ```
 
