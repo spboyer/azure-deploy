@@ -1,6 +1,27 @@
 ---
 name: azure-deploy
-description: Deploy applications to Azure App Service, Azure Functions, and Static Web Apps. USE THIS SKILL when users want to deploy, publish, host, or run their application on Azure. This skill detects application type (React, Vue, Angular, Next.js, Python, .NET, Java, etc.), recommends the optimal Azure service, provides local preview capabilities, and guides deployment. Trigger phrases include "deploy to Azure", "host on Azure", "publish to Azure", "run on Azure", "get this running in the cloud", "deploy my app", "Azure deployment", "set up Azure hosting", "deploy to App Service", "deploy to Functions", "deploy to Static Web Apps", "preview locally", "test before deploying", "what Azure service should I use", "help me deploy", etc. Also handles multi-service deployments with Azure Developer CLI (azd) and Infrastructure as Code when complexity is detected.
+description: |
+  Intelligent Azure deployment skill with app detection, local preview, and guided workflows.
+  
+  USE THIS SKILL for:
+  - Analyzing projects to recommend the best Azure service (App Service, Functions, Static Web Apps)
+  - Local preview and testing before deployment
+  - Step-by-step deployment guidance with Azure CLI
+  - Multi-service deployments with azd and Infrastructure as Code
+  
+  TRIGGER PHRASES (explicit invocation recommended to avoid Azure MCP conflicts):
+  - "@azure-deploy" or "use azure-deploy skill"
+  - "analyze my project for Azure" / "what Azure service should I use"
+  - "detect my app type" / "recommend Azure service for this"
+  - "preview locally" / "test before deploying" / "run this locally first"
+  - "guide me through Azure deployment" / "help me deploy step by step"
+  - "deploy my monorepo" / "set up infrastructure as code"
+  - "should I use App Service or Functions" / "Static Web Apps or App Service"
+  - "package and deploy" / "prepare for Azure hosting"
+  - "get this running in Azure" / "set up Azure for this app"
+  
+  NOTE: Generic phrases like "deploy to Azure" may trigger Azure MCP tools instead.
+  Use explicit skill reference or detection/recommendation phrases for best results.
 ---
 
 # Azure Deploy Skill

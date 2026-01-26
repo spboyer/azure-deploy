@@ -25,28 +25,43 @@ Clone and add the skill folder to your Claude/Copilot configuration.
 
 ## Usage
 
-### Basic Usage
+### Recommended Trigger Phrases
 
-Simply describe what you want to deploy:
+> **Note**: Generic phrases like "deploy to Azure" may trigger Azure MCP tools instead of this skill. Use these phrases for best results:
 
+**Explicit Skill Reference** (most reliable):
 ```
-"Deploy this app to Azure"
-"Help me get this running on Azure"  
-"What Azure service should I use?"
-```
-
-### Explicit Skill Invocation
-
-> **Note**: If you have the Azure MCP tools enabled, phrases like "deploy to Azure" may trigger the MCP instead of this skill. Use explicit invocation if needed:
-
-```
+"@azure-deploy analyze my project"
 "Use the azure-deploy skill to deploy my app"
-"@azure-deploy help me deploy this"
 ```
 
-Or reference the skill directly in your prompt:
+**Detection & Recommendation** (unique to this skill):
 ```
-"Using the azure-deploy skill, analyze my project and recommend an Azure service"
+"What Azure service should I use for this project?"
+"Analyze my project for Azure deployment"
+"Should I use App Service or Functions?"
+"Detect my app type and recommend Azure service"
+```
+
+**Local Preview** (unique capability):
+```
+"Preview my app locally before deploying"
+"Test this locally first"
+"Run this app locally"
+```
+
+**Guided Deployment**:
+```
+"Guide me through Azure deployment step by step"
+"Help me deploy this to Azure"
+"Package and deploy my app"
+```
+
+**Multi-Service / IaC**:
+```
+"Deploy my monorepo to Azure"
+"Set up infrastructure as code for this"
+"Use azd to deploy this project"
 ```
 
 ## What the Skill Does
