@@ -626,10 +626,6 @@ copilot --version
 gh copilot --version
 ```
 
-# Verify
-gh copilot --version
-```
-
 ### Tests Pass Locally but Fail in Ralph
 
 **Diagnosis**: Different environment or configuration
