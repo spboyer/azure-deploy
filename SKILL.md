@@ -160,43 +160,50 @@ Before deploying, help users test locally.
 
 | ❌ WRONG (fails on macOS) | ✅ CORRECT |
 |---------------------------|------------|
-| `mode: "async", detach: true` | `mode: "async"` (no detach) |
-| Relies on `setsid` (Linux only) | Works on macOS and Linux |
+| `mode: "async", detach: true` | Keep in same session + open browser |
+| Backgrounding with `&` alone | Start server, wait, then `open` URL |
+| `nohup` (session dies anyway) | All in one command chain |
 
-**The correct pattern for starting dev servers:**
+### The Working Pattern for Local Preview
+
+**The server dies when the session ends.** The solution is to start the server and open the browser in ONE session before it can close:
 
 ```bash
-# Use mode: "async" WITHOUT detach: true
-# Then background with & if needed
+# Start server, wait for init, open browser - ALL IN ONE COMMAND
 cd /path/to/project && npm run dev &
+sleep 2
+open http://localhost:5173/
 ```
 
-**Why this matters:**
-- `detach: true` uses `setsid` which doesn't exist on macOS
-- The command fails silently, server never starts
-- User sees "connection refused" errors
+**Why this works:**
+1. Server starts in background (`&`)
+2. `sleep 2` gives it time to bind to port
+3. `open` launches browser immediately
+4. Browser connection keeps the server alive
+
+**Why previous approaches fail:**
+| Approach | Problem |
+|----------|---------|
+| `detach: true` | `setsid` doesn't exist on macOS - silent failure |
+| `&` backgrounding alone | Server killed when bash session ends |
+| `nohup` | Session still terminates, server dies |
 
 ### Running Dev Servers in Copilot CLI
 
-**Correct approach:**
-1. Use `mode: "async"` (WITHOUT detach) to start dev servers
-2. Background with `&` if needed for the process to persist
-3. Use `curl` to verify the server is responding
-4. Vite may auto-select a different port (5173 → 5174) if occupied
+**Correct approach - all in one session:**
 
 ```bash
-# Start dev server - background with &
-cd /path/to/project && npm run dev &
-# mode: "async" (NOT detach: true)
+# Vite/React/Vue
+cd /path/to/project && npm run dev & sleep 2 && open http://localhost:5173/
 
-# Wait a moment, then verify with curl
-curl -s http://localhost:5173/ | head -20
+# Next.js
+cd /path/to/project && npm run dev & sleep 3 && open http://localhost:3000/
 
-# If port 5173 is occupied, check output for actual port
-# Vite shows: "Local: http://localhost:5174/"
+# Flask
+cd /path/to/project && flask run & sleep 2 && open http://localhost:5000/
 ```
 
-**Server verification pattern:**
+**Server verification (if not opening browser):**
 ```bash
 # Check if responding (returns HTTP status code)
 curl -s -o /dev/null -w "%{http_code}" http://localhost:5173/
