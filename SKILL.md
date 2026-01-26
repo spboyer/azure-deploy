@@ -235,26 +235,33 @@ npx serve dist
 cd dist && python3 -m http.server 8080
 ```
 
-### SWA CLI - Local Preview (When API Integration Needed)
+### SWA CLI - Local Preview (ALWAYS Run Interactively)
 
-> ⚠️ **Known Issue (macOS):** SWA CLI may have session persistence issues due to missing `setsid`. Use `npm run dev` or `npx serve` instead.
+> ✅ **Best Practice:** Always run SWA CLI interactively (async mode, not detached). This ensures routing rules from `staticwebapp.config.json` are applied.
 
 ```bash
-# Install SWA CLI (one-time)
-npm install -g @azure/static-web-apps-cli
+# Start SWA CLI interactively (recommended)
+npx --yes @azure/static-web-apps-cli start ./dist --port 4280
 
-# Start local emulator (foreground mode recommended)
-swa start ./dist
+# Use mode: "async" in Copilot CLI, NOT detach: true
+```
 
-# With API folder
-swa start ./dist --api-location ./api
+**When to use SWA CLI instead of `npm run dev`:**
+- Need `staticwebapp.config.json` routing rules (navigation fallback, headers)
+- Testing authentication/authorization
+- Testing with API integration (`--api-location`)
+
+**Stopping SWA CLI:**
+```bash
+# Stop the server when done
+pkill -f "swa"
 ```
 
 **If SWA CLI fails:**
-1. Use `npm run dev` for development
+1. Use `npm run dev` for development (no routing rules)
 2. Use `npm run preview` for production build testing
 3. Use `npx serve dist` as universal fallback
-4. For API testing, deploy to Azure and test there
+4. For full SWA features, deploy to Azure and test there
 
 ### Azure Functions - Local Preview
 ```bash
