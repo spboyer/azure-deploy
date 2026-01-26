@@ -133,6 +133,35 @@ rm -rf ~/.swa
 SWA_CLI_DEBUG=* swa deploy ./dist
 ```
 
+### SWA CLI Local Server Terminates (macOS)
+
+**Problem:** `swa start` exits unexpectedly or session becomes invalid.
+
+**Cause:** macOS lacks `setsid` command used for process isolation. Background mode may not work correctly.
+
+**Solutions:**
+1. **Use alternative preview methods (recommended):**
+   ```bash
+   # For Vite projects
+   npm run build && npm run preview
+   
+   # For any static site
+   npx serve dist
+   ```
+
+2. **Run SWA CLI in foreground in a dedicated terminal:**
+   ```bash
+   # Don't background the process
+   swa start ./dist
+   # Keep this terminal open while testing
+   ```
+
+3. **For API testing, deploy to Azure instead:**
+   ```bash
+   swa deploy ./dist --deployment-token $TOKEN
+   # Test the deployed URL
+   ```
+
 ---
 
 ## Azure Functions Issues

@@ -4,6 +4,64 @@ Test your application locally before deploying to Azure. No Azure authentication
 
 ---
 
+## ⚠️ Important: Recommended Local Preview Methods
+
+**For best reliability, use framework-native preview tools over SWA CLI for simple static site testing.**
+
+| Method | Use When | Reliability |
+|--------|----------|-------------|
+| `npm run preview` | Vite/React/Vue SPAs | ✅ Most reliable |
+| `npx serve dist` | Any static build output | ✅ Very reliable |
+| `python3 -m http.server` | Quick testing, no npm needed | ✅ Reliable |
+| `swa start` | Need API integration or auth mocking | ⚠️ May have session issues |
+
+### Quick Start (Recommended)
+
+```bash
+# For Vite projects (React, Vue, etc.)
+npm run build
+npm run preview -- --host
+
+# For any static site (universal fallback)
+npm run build
+npx serve dist
+
+# Simplest option (Python, no deps)
+cd dist && python3 -m http.server 8080
+```
+
+---
+
+## Known Issues & Troubleshooting
+
+### SWA CLI Session Termination (macOS)
+
+**Problem:** SWA CLI starts successfully but the process terminates unexpectedly, especially when run from automated tools or certain terminal environments.
+
+**Symptoms:**
+- SWA CLI shows "Azure Static Web Apps emulator started" then dies
+- `curl http://localhost:4280` returns "Connection refused"
+- Session becomes invalid
+
+**Workarounds:**
+1. **Use `npm run preview` instead** (most reliable for Vite projects)
+2. **Use `npx serve dist`** (works for any static build)
+3. **Run SWA CLI in a separate terminal window** (not through automation)
+4. **For API testing, deploy to Azure** and test the deployed version
+
+**Root Cause:** Process isolation utilities like `setsid` (Linux) are not available on macOS by default, causing issues with background process management.
+
+### SWA CLI Alternatives by Use Case
+
+| Need | Solution |
+|------|----------|
+| Just test static files | `npx serve dist` or `npm run preview` |
+| Test with routing rules | Deploy to Azure (routing only works there) |
+| Test with mock auth | Must use SWA CLI in foreground terminal |
+| Test with API backend | Use SWA CLI in foreground, or deploy to Azure |
+
+---
+
 ## Quick Test
 
 Run the included test script to verify all local dev servers work:
@@ -27,6 +85,8 @@ This tests 7 scenarios:
 
 | Service Target | Local Tool | Command | Default Port |
 |----------------|------------|---------|--------------|
+| Static Web Apps | **npm run preview** (recommended) | `npm run preview` | 4173 |
+| Static Web Apps | npx serve | `npx serve dist` | 3000 |
 | Static Web Apps | SWA CLI | `swa start` | 4280 |
 | Azure Functions | Functions Core Tools | `func start` | 7071 |
 | App Service (Node) | npm | `npm run dev` | varies |
@@ -50,7 +110,36 @@ func --version
 
 ## Static Web Apps Local Development
 
-### Basic Usage
+### Method 1: Framework Preview (Recommended)
+
+For Vite-based projects (React, Vue, Svelte, etc.):
+
+```bash
+# Build first
+npm run build
+
+# Preview production build
+npm run preview
+
+# With network access (for testing on other devices)
+npm run preview -- --host
+```
+
+### Method 2: Simple Static Server
+
+For any static site:
+
+```bash
+# Using npx (no global install needed)
+npx serve dist
+
+# Using Python (no npm needed)
+cd dist && python3 -m http.server 8080
+```
+
+### Method 3: SWA CLI (When API/Auth Needed)
+
+> ⚠️ May have session issues on macOS. Use in a dedicated terminal window.
 
 ```bash
 # Auto-detect and start
@@ -369,13 +458,29 @@ taskkill /PID <PID> /F  # Windows
 
 ### SWA CLI Issues
 
+**Session terminates unexpectedly (common on macOS):**
 ```bash
-# Clear SWA CLI cache
+# Best solution: Use alternative preview methods
+npm run preview  # For Vite projects
+npx serve dist   # For any static build
+
+# If you must use SWA CLI, run in foreground terminal (not background)
+swa start ./dist  # Keep terminal open
+```
+
+**Clear SWA CLI cache:**
+```bash
 rm -rf ~/.swa
 
 # Run with debug output
 SWA_CLI_DEBUG=* swa start
 ```
+
+**setsid error on macOS:**
+```
+bash: setsid: command not found
+```
+This is expected - `setsid` is a Linux command. Use SWA CLI in foreground mode or use alternative preview methods.
 
 ### Functions Core Tools Issues
 
@@ -383,8 +488,12 @@ SWA_CLI_DEBUG=* swa start
 # Clear Functions cache
 rm -rf ~/.azure-functions-core-tools
 
-# Check Node version (Functions v4 requires Node 18+)
+# Check Node version (Functions v4 requires Node 18+, recommend 22 LTS)
 node --version
+
+# Reinstall Functions tools
+npm uninstall -g azure-functions-core-tools
+npm install -g azure-functions-core-tools@4
 ```
 
 ### CORS Errors
@@ -400,3 +509,37 @@ Local development often requires CORS configuration:
 # Or start with flag
 func start --cors "*"
 ```
+
+### Vite Preview Not Working
+
+```bash
+# Ensure you built first
+npm run build
+
+# Check dist folder exists
+ls -la dist/
+
+# If missing build script, use serve instead
+npx serve dist
+```
+
+---
+
+## OS-Specific Notes
+
+### macOS
+
+- **SWA CLI:** May have session persistence issues. Prefer `npm run preview` or `npx serve`.
+- **Process management:** `setsid` not available; use foreground processes for dev servers.
+- **Homebrew users:** Ensure Node.js 22 LTS is installed via `brew install node@22`.
+
+### Linux
+
+- **SWA CLI:** Generally works well with background processes.
+- **Permissions:** May need `sudo` for global npm installs, or use `nvm` to avoid.
+
+### Windows
+
+- **Terminal:** Use PowerShell or Windows Terminal for best compatibility.
+- **Paths:** Use forward slashes in commands or quote paths with backslashes.
+- **WSL:** For most reliable experience, run in WSL2 with Linux instructions.

@@ -154,13 +154,50 @@ After detection, assess confidence:
 
 Before deploying, help users test locally.
 
-### Static Web Apps - Local Preview
+### Local Preview Strategy
+
+**IMPORTANT:** SWA CLI can have issues with session management, especially on macOS. Always have fallback options ready.
+
+| Method | Best For | Reliability |
+|--------|----------|-------------|
+| `npm run preview` / `vite preview` | Vite/React/Vue SPAs | ✅ Most reliable |
+| `npx serve dist` | Any static build | ✅ Very reliable |
+| `swa start` | SWA with API integration | ⚠️ May have session issues |
+| Framework dev server | Development with HMR | ✅ Reliable |
+
+### Recommended: Use Framework Preview (Most Reliable)
+
+For SPAs built with Vite, use the built-in preview server:
+
+```bash
+# Build first
+npm run build
+
+# Preview the production build (RECOMMENDED)
+npm run preview
+# or with host flag for network access
+npm run preview -- --host
+```
+
+**Fallback for any static site:**
+```bash
+# Simple static server (works everywhere)
+npx serve dist
+
+# Or with Python (no npm needed)
+cd dist && python3 -m http.server 8080
+```
+
+### SWA CLI - Local Preview (When API Integration Needed)
+
+> ⚠️ **Known Issue (macOS):** SWA CLI may have session persistence issues. If it fails, use `npm run preview` or `npx serve` instead.
+
 ```bash
 # Install SWA CLI (one-time)
 npm install -g @azure/static-web-apps-cli
 
 # Start local emulator
-swa start
+swa start ./dist
 
 # Or with specific paths
 swa start ./dist --api-location ./api
@@ -168,6 +205,11 @@ swa start ./dist --api-location ./api
 # With a dev server proxy
 swa start http://localhost:3000 --api-location ./api
 ```
+
+**If SWA CLI fails to start or session terminates:**
+1. Try `npm run preview` (for Vite projects)
+2. Try `npx serve dist` (universal fallback)
+3. For API testing, deploy to Azure and test there
 
 ### Azure Functions - Local Preview
 ```bash
@@ -203,7 +245,7 @@ dotnet run
 ./mvnw spring-boot:run
 ```
 
-See [Local Preview Guide](./reference/local-preview.md) for detailed setup instructions.
+See [Local Preview Guide](./reference/local-preview.md) for detailed setup and troubleshooting.
 
 ---
 
