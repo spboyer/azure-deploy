@@ -154,19 +154,39 @@ After detection, assess confidence:
 
 Before deploying, help users test locally.
 
-### CRITICAL: Running Dev Servers in Copilot CLI
+### ⛔ CRITICAL: macOS Compatibility
 
-**DO NOT use `detach: true`** for dev servers on macOS - it will fail due to missing `setsid`.
+**NEVER use `detach: true` on macOS** - it WILL FAIL with "setsid: command not found".
+
+| ❌ WRONG (fails on macOS) | ✅ CORRECT |
+|---------------------------|------------|
+| `mode: "async", detach: true` | `mode: "async"` (no detach) |
+| Relies on `setsid` (Linux only) | Works on macOS and Linux |
+
+**The correct pattern for starting dev servers:**
+
+```bash
+# Use mode: "async" WITHOUT detach: true
+# Then background with & if needed
+cd /path/to/project && npm run dev &
+```
+
+**Why this matters:**
+- `detach: true` uses `setsid` which doesn't exist on macOS
+- The command fails silently, server never starts
+- User sees "connection refused" errors
+
+### Running Dev Servers in Copilot CLI
 
 **Correct approach:**
-1. Use `mode: "async"` (without detach) to start dev servers
-2. Keep the session alive while testing
+1. Use `mode: "async"` (WITHOUT detach) to start dev servers
+2. Background with `&` if needed for the process to persist
 3. Use `curl` to verify the server is responding
 4. Vite may auto-select a different port (5173 → 5174) if occupied
 
 ```bash
-# Start dev server in async mode
-npm run dev
+# Start dev server - background with &
+cd /path/to/project && npm run dev &
 # mode: "async" (NOT detach: true)
 
 # Wait a moment, then verify with curl
