@@ -12,11 +12,14 @@ Run the included test script to verify all local dev servers work:
 ./test-local.sh
 ```
 
-This tests:
-- Static HTML with Python HTTP server
-- React/Vite with `npm run dev`
-- Python Flask with `flask run`
-- Azure Functions with `func start`
+This tests 7 scenarios:
+- Static HTML with Python HTTP server (port 8080)
+- React/Vite with `npm run dev` (port 5173)
+- Python Flask with `flask run` (port 5000)
+- Azure Functions with `func start` (port 7071)
+- Static HTML with SWA CLI (port 4280)
+- Next.js SSR with `npm run dev` (port 3000)
+- Monorepo with parallel API + Frontend servers (ports 3001, 3000)
 
 ---
 

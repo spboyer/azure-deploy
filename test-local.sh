@@ -280,6 +280,187 @@ test_azure_functions() {
 }
 
 # =============================================================================
+# Test 5: SWA CLI (swa start) for Static Sites
+# =============================================================================
+test_swa_cli() {
+    local test_name="Static HTML (SWA CLI)"
+    log_info "Testing: $test_name"
+    
+    # Check if swa is installed
+    if ! command -v swa >/dev/null 2>&1; then
+        log_warn "SWA CLI not installed, skipping test"
+        record_result "$test_name" "SKIP" "SWA CLI not installed"
+        return
+    fi
+    
+    local test_path="$TEST_DIR/static-html"
+    local port=4280
+    
+    # Kill any existing process on port
+    kill_port $port
+    
+    cd "$test_path"
+    
+    # Start SWA CLI in background
+    swa start --port $port >/dev/null 2>&1 &
+    local pid=$!
+    
+    # Wait for server
+    if ! wait_for_server "http://localhost:$port" 20; then
+        kill $pid 2>/dev/null || true
+        kill_port $port
+        record_result "$test_name" "FAIL" "Server failed to start"
+        return
+    fi
+    
+    # Test the endpoint
+    if curl -s "http://localhost:$port" | grep -q "Hello from Static HTML"; then
+        record_result "$test_name" "PASS"
+        log_success "$test_name - http://localhost:$port"
+    else
+        record_result "$test_name" "FAIL" "Content verification failed"
+    fi
+    
+    # Cleanup
+    kill $pid 2>/dev/null || true
+    kill_port $port
+}
+
+# =============================================================================
+# Test 6: Next.js Dev Server
+# =============================================================================
+test_nextjs_dev() {
+    local test_name="Next.js SSR (npm run dev)"
+    log_info "Testing: $test_name"
+    
+    local test_path="$TEST_DIR/nextjs-ssr"
+    local port=3000
+    
+    # Kill any existing process on port
+    kill_port $port
+    
+    cd "$test_path"
+    
+    # Install dependencies if needed
+    if [[ ! -d "node_modules" ]]; then
+        npm install --silent 2>/dev/null || true
+    fi
+    
+    # Start Next.js dev server in background
+    npm run dev >/dev/null 2>&1 &
+    local pid=$!
+    
+    # Wait for server (Next.js can take a moment to compile)
+    if ! wait_for_server "http://localhost:$port" 45; then
+        kill $pid 2>/dev/null || true
+        kill_port $port
+        record_result "$test_name" "FAIL" "Server failed to start"
+        return
+    fi
+    
+    # Test the endpoint
+    if curl -s "http://localhost:$port" | grep -q -E "(Next\.js|Hello from Next)"; then
+        record_result "$test_name" "PASS"
+        log_success "$test_name - http://localhost:$port"
+    else
+        # Also try the API health endpoint
+        if curl -s "http://localhost:$port/api/health" | grep -q "OK"; then
+            record_result "$test_name" "PASS"
+            log_success "$test_name - http://localhost:$port/api/health"
+        else
+            record_result "$test_name" "FAIL" "Content verification failed"
+        fi
+    fi
+    
+    # Cleanup
+    kill $pid 2>/dev/null || true
+    kill_port $port
+}
+
+# =============================================================================
+# Test 7: Monorepo Multi-Service Local Preview
+# =============================================================================
+test_monorepo() {
+    local test_name="Monorepo (API + Frontend)"
+    log_info "Testing: $test_name"
+    
+    local test_path="$TEST_DIR/monorepo"
+    local api_port=3001
+    local frontend_port=3000
+    
+    # Kill any existing processes on ports
+    kill_port $api_port
+    kill_port $frontend_port
+    
+    cd "$test_path"
+    
+    # Install root dependencies
+    npm install --silent 2>/dev/null || true
+    
+    # Install and start API
+    cd packages/api
+    npm install --silent 2>/dev/null || true
+    npm run dev >/dev/null 2>&1 &
+    local api_pid=$!
+    cd "$test_path"
+    
+    # Install and start Frontend
+    cd packages/frontend
+    npm install --silent 2>/dev/null || true
+    npm run dev >/dev/null 2>&1 &
+    local frontend_pid=$!
+    cd "$test_path"
+    
+    # Wait for API
+    if ! wait_for_server "http://localhost:$api_port/health" 20; then
+        kill $api_pid 2>/dev/null || true
+        kill $frontend_pid 2>/dev/null || true
+        kill_port $api_port
+        kill_port $frontend_port
+        record_result "$test_name" "FAIL" "API server failed to start"
+        return
+    fi
+    
+    # Wait for Frontend
+    if ! wait_for_server "http://localhost:$frontend_port" 20; then
+        kill $api_pid 2>/dev/null || true
+        kill $frontend_pid 2>/dev/null || true
+        kill_port $api_port
+        kill_port $frontend_port
+        record_result "$test_name" "FAIL" "Frontend server failed to start"
+        return
+    fi
+    
+    # Test both endpoints
+    local api_ok=false
+    local frontend_ok=false
+    
+    if curl -s "http://localhost:$api_port/health" | grep -q "OK"; then
+        api_ok=true
+    fi
+    
+    if curl -s "http://localhost:$frontend_port" | grep -q "Monorepo Frontend"; then
+        frontend_ok=true
+    fi
+    
+    if $api_ok && $frontend_ok; then
+        record_result "$test_name" "PASS"
+        log_success "$test_name - API: http://localhost:$api_port, Frontend: http://localhost:$frontend_port"
+    else
+        local fail_msg=""
+        $api_ok || fail_msg="API failed"
+        $frontend_ok || fail_msg="$fail_msg Frontend failed"
+        record_result "$test_name" "FAIL" "$fail_msg"
+    fi
+    
+    # Cleanup
+    kill $api_pid 2>/dev/null || true
+    kill $frontend_pid 2>/dev/null || true
+    kill_port $api_port
+    kill_port $frontend_port
+}
+
+# =============================================================================
 # Main
 # =============================================================================
 main() {
@@ -299,6 +480,9 @@ main() {
     test_react_vite
     test_python_flask
     test_azure_functions
+    test_swa_cli
+    test_nextjs_dev
+    test_monorepo
     
     print_summary
 }

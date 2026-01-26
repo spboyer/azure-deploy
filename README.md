@@ -128,7 +128,7 @@ The skill includes test scripts to validate functionality:
 | Script | What It Tests | Azure Required |
 |--------|---------------|----------------|
 | `test-detection.sh` | App type detection, service recommendations | No |
-| `test-local.sh` | Local dev servers (`npm run dev`, `flask run`, `func start`) | No |
+| `test-local.sh` | Local dev servers (7 scenarios: static, React, Flask, Functions, SWA CLI, Next.js, Monorepo) | No |
 | `test-deploy.sh` | End-to-end Azure deployment with curl validation | Yes |
 
 ### Test Scenarios
@@ -137,12 +137,12 @@ The `test-scenarios/` folder contains sample projects:
 
 | Scenario | Type | Local Test | Deploy Target |
 |----------|------|------------|---------------|
-| `static-html/` | Static site | Python HTTP server | Static Web Apps |
+| `static-html/` | Static site | Python HTTP server, SWA CLI | Static Web Apps |
 | `react-app/` | Vite + React | `npm run dev` | Static Web Apps |
 | `python-flask/` | Flask API | `flask run` | App Service |
 | `azure-functions/` | Node.js v4 Functions | `func start` | Azure Functions |
 | `nextjs-ssr/` | Next.js SSR | `npm run dev` | App Service |
-| `monorepo/` | Multi-service | N/A | azd + IaC |
+| `monorepo/` | Multi-service (API + Frontend) | Parallel dev servers | azd + IaC |
 
 ### Running Tests
 

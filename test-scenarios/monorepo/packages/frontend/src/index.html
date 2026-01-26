@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monorepo Frontend</title>
+</head>
+<body>
+  <h1>Hello from Monorepo Frontend</h1>
+  <p>This is the frontend service of the monorepo.</p>
+  <div id="api-response"></div>
+  <script>
+    fetch('http://localhost:3001/api/hello')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('api-response').innerText = 
+          'API says: ' + data.message;
+      })
+      .catch(() => {
+        document.getElementById('api-response').innerText = 
+          'API not available';
+      });
+  </script>
+</body>
+</html>
