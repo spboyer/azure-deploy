@@ -12,6 +12,8 @@ This comprehensive guide explains how to set up, configure, and run the Ralph Lo
 7. [Continuous Improvement Process](#continuous-improvement-process)
 8. [Best Practices](#best-practices)
 9. [Troubleshooting](#troubleshooting)
+10. [Completion Signal](#completion-signal)
+11. [Summary](#summary)
 
 ## Overview
 
