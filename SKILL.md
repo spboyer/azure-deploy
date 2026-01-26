@@ -1,6 +1,6 @@
 ---
 name: azure-deploy
-description: Deploy applications to Azure App Service, Azure Functions, and Static Web Apps with intelligent detection and guided workflows. USE THIS SKILL for analyzing projects to recommend Azure services, local preview before deployment, step-by-step deployment guidance, and multi-service deployments with azd. Trigger phrases include "what Azure service should I use", "analyze my project for Azure", "detect my app type", "preview locally", "test before deploying", "guide me through deployment", "should I use App Service or Functions", "deploy my monorepo", "set up infrastructure as code", "package and deploy this app". NOTE: Generic phrases like "deploy to Azure" may trigger Azure MCP tools instead - use explicit skill reference (@azure-deploy) or detection phrases for best results.
+description: Deploy applications to Azure App Service, Azure Functions, and Static Web Apps. Analyzes projects to recommend services, provides local preview, and guides deployment. Use phrases like "what Azure service should I use", "analyze my project for Azure", "preview locally", "guide me through deployment".
 ---
 
 # Azure Deploy Skill
@@ -154,26 +154,73 @@ After detection, assess confidence:
 
 Before deploying, help users test locally.
 
+### CRITICAL: Running Dev Servers in Copilot CLI
+
+**DO NOT use `detach: true`** for dev servers on macOS - it will fail due to missing `setsid`.
+
+**Correct approach:**
+1. Use `mode: "async"` (without detach) to start dev servers
+2. Keep the session alive while testing
+3. Use `curl` to verify the server is responding
+4. Vite may auto-select a different port (5173 → 5174) if occupied
+
+```bash
+# Start dev server in async mode
+npm run dev
+# mode: "async" (NOT detach: true)
+
+# Wait a moment, then verify with curl
+curl -s http://localhost:5173/ | head -20
+
+# If port 5173 is occupied, check output for actual port
+# Vite shows: "Local: http://localhost:5174/"
+```
+
+**Server verification pattern:**
+```bash
+# Check if responding (returns HTTP status code)
+curl -s -o /dev/null -w "%{http_code}" http://localhost:5173/
+# 200 = success, 000 = not responding
+```
+
 ### Local Preview Strategy
 
 **IMPORTANT:** SWA CLI can have issues with session management, especially on macOS. Always have fallback options ready.
 
 | Method | Best For | Reliability |
 |--------|----------|-------------|
-| `npm run preview` / `vite preview` | Vite/React/Vue SPAs | ✅ Most reliable |
+| `npm run dev` | Development with HMR | ✅ Most reliable |
+| `npm run preview` | Test production build | ✅ Very reliable |
 | `npx serve dist` | Any static build | ✅ Very reliable |
-| `swa start` | SWA with API integration | ⚠️ May have session issues |
-| Framework dev server | Development with HMR | ✅ Reliable |
+| `swa start` | SWA with API integration | ⚠️ Session issues on macOS |
 
-### Recommended: Use Framework Preview (Most Reliable)
+### Recommended: Framework Dev Server (Most Reliable)
 
-For SPAs built with Vite, use the built-in preview server:
+For SPAs, use the framework's dev server:
+
+```bash
+# Vite (React, Vue, Svelte)
+npm run dev
+# Default: http://localhost:5173 (auto-increments if occupied)
+
+# Next.js
+npm run dev
+# Default: http://localhost:3000
+
+# Angular
+ng serve
+# Default: http://localhost:4200
+```
+
+### Production Build Preview
+
+To test the actual build output:
 
 ```bash
 # Build first
 npm run build
 
-# Preview the production build (RECOMMENDED)
+# Preview the production build
 npm run preview
 # or with host flag for network access
 npm run preview -- --host
@@ -190,26 +237,24 @@ cd dist && python3 -m http.server 8080
 
 ### SWA CLI - Local Preview (When API Integration Needed)
 
-> ⚠️ **Known Issue (macOS):** SWA CLI may have session persistence issues. If it fails, use `npm run preview` or `npx serve` instead.
+> ⚠️ **Known Issue (macOS):** SWA CLI may have session persistence issues due to missing `setsid`. Use `npm run dev` or `npx serve` instead.
 
 ```bash
 # Install SWA CLI (one-time)
 npm install -g @azure/static-web-apps-cli
 
-# Start local emulator
+# Start local emulator (foreground mode recommended)
 swa start ./dist
 
-# Or with specific paths
+# With API folder
 swa start ./dist --api-location ./api
-
-# With a dev server proxy
-swa start http://localhost:3000 --api-location ./api
 ```
 
-**If SWA CLI fails to start or session terminates:**
-1. Try `npm run preview` (for Vite projects)
-2. Try `npx serve dist` (universal fallback)
-3. For API testing, deploy to Azure and test there
+**If SWA CLI fails:**
+1. Use `npm run dev` for development
+2. Use `npm run preview` for production build testing
+3. Use `npx serve dist` as universal fallback
+4. For API testing, deploy to Azure and test there
 
 ### Azure Functions - Local Preview
 ```bash
