@@ -17,8 +17,15 @@ LOCATION="eastus"
 SWA_LOCATION="centralus"  # SWA has limited region availability
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TEST_DIR="$SCRIPT_DIR/test-scenarios"
+SCREENSHOT_DIR="$SCRIPT_DIR/screenshots"
+DEPLOYED_URLS_FILE="$SCRIPT_DIR/.deployed-urls.txt"
 RESULTS=()
 CLEANUP_RESOURCES=()
+
+# Create screenshots directory
+mkdir -p "$SCREENSHOT_DIR"
+# Clear previous URLs file
+> "$DEPLOYED_URLS_FILE"
 
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[PASS]${NC} $1"; }
@@ -43,6 +50,13 @@ record_result() {
     RESULTS+=("$status|$test_name|$message")
 }
 
+# Record deployed URL for screenshot capture
+record_url() {
+    local name=$1
+    local url=$2
+    echo "$name|$url" >> "$DEPLOYED_URLS_FILE"
+}
+
 print_summary() {
     echo ""
     echo -e "${BOLD}=======================================${NC}"
@@ -65,6 +79,16 @@ print_summary() {
     
     echo ""
     echo -e "Passed: ${GREEN}$passed${NC} | Failed: ${RED}$failed${NC}"
+    
+    # Print URLs file location for screenshot capture
+    if [[ -s "$DEPLOYED_URLS_FILE" ]]; then
+        echo ""
+        echo -e "${BLUE}Deployed URLs saved to:${NC} $DEPLOYED_URLS_FILE"
+        echo -e "${BLUE}Use with Copilot CLI:${NC} Take screenshots of the deployed apps"
+        echo ""
+        echo "URLs:"
+        cat "$DEPLOYED_URLS_FILE"
+    fi
     
     if [[ $failed -gt 0 ]]; then
         exit 1
@@ -148,6 +172,7 @@ test_static_html() {
     
     if curl -s "https://$url" | grep -q "Hello from Static HTML"; then
         record_result "$test_name" "PASS" ""
+        record_url "static-html" "https://$url"
         log_success "$test_name - URL: https://$url"
     else
         record_result "$test_name" "FAIL" "Content verification failed"
@@ -214,6 +239,7 @@ test_react_app() {
     
     if curl -s "https://$url" | grep -q "React"; then
         record_result "$test_name" "PASS" ""
+        record_url "react-app" "https://$url"
         log_success "$test_name - URL: https://$url"
     else
         record_result "$test_name" "FAIL" "Content verification failed"
@@ -277,6 +303,7 @@ test_python_flask() {
     rm -f /tmp/flask-app.zip
     
     record_result "$test_name" "PASS" ""
+    record_url "python-flask" "https://$app_name.azurewebsites.net"
     log_success "$test_name - URL: https://$app_name.azurewebsites.net"
 }
 
@@ -360,9 +387,11 @@ test_azure_functions() {
     
     if [[ $curl_success -eq 1 ]]; then
         record_result "$test_name" "PASS" ""
+        record_url "azure-functions" "$func_url"
         log_success "$test_name - URL: $func_url"
     else
         record_result "$test_name" "PASS" "(deployed, cold start may need more time)"
+        record_url "azure-functions" "$func_url"
         log_success "$test_name - Function App deployed: $app_name"
     fi
 }
