@@ -140,7 +140,7 @@ Place in your output directory or repository root:
     "X-Content-Type-Options": "nosniff"
   },
   "platform": {
-    "apiRuntime": "node:20"
+    "apiRuntime": "node:22"
   }
 }
 ```

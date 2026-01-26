@@ -1,0 +1,155 @@
+[
+  {
+    "category": "detection",
+    "description": "Detect React/Vite app as Static Web Apps",
+    "scenario": "test-scenarios/react-app",
+    "expected_service": "Static Web Apps",
+    "expected_confidence": "MEDIUM",
+    "steps": [
+      "Navigate to test-scenarios/react-app",
+      "Check for package.json with vite and react dependencies",
+      "Detect framework as React/Vite",
+      "Recommend Static Web Apps",
+      "Confidence should be MEDIUM (framework detection)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "detection",
+    "description": "Detect Python Flask app as App Service",
+    "scenario": "test-scenarios/python-flask",
+    "expected_service": "App Service",
+    "expected_confidence": "MEDIUM",
+    "steps": [
+      "Navigate to test-scenarios/python-flask",
+      "Check for requirements.txt with flask",
+      "Detect framework as Flask",
+      "Recommend App Service",
+      "Confidence should be MEDIUM"
+    ],
+    "passes": false
+  },
+  {
+    "category": "detection",
+    "description": "Detect Azure Functions project",
+    "scenario": "test-scenarios/azure-functions",
+    "expected_service": "Azure Functions",
+    "expected_confidence": "HIGH",
+    "steps": [
+      "Navigate to test-scenarios/azure-functions",
+      "Check for host.json and function.json files",
+      "Detect as Azure Functions project",
+      "Confidence should be HIGH (explicit config)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "detection",
+    "description": "Detect static HTML as Static Web Apps",
+    "scenario": "test-scenarios/static-html",
+    "expected_service": "Static Web Apps",
+    "expected_confidence": "HIGH",
+    "steps": [
+      "Navigate to test-scenarios/static-html",
+      "Check for index.html with no package.json",
+      "Detect as static HTML site",
+      "Recommend Static Web Apps",
+      "Confidence should be HIGH"
+    ],
+    "passes": false
+  },
+  {
+    "category": "detection",
+    "description": "Detect Next.js SSR as App Service",
+    "scenario": "test-scenarios/nextjs-ssr",
+    "expected_service": "App Service",
+    "expected_confidence": "MEDIUM",
+    "steps": [
+      "Navigate to test-scenarios/nextjs-ssr",
+      "Check for next.config.js without output: 'export'",
+      "Detect as Next.js SSR (server-side rendering)",
+      "Recommend App Service",
+      "Confidence should be MEDIUM"
+    ],
+    "passes": false
+  },
+  {
+    "category": "detection",
+    "description": "Detect monorepo as multi-service/azd candidate",
+    "scenario": "test-scenarios/monorepo",
+    "expected_service": "Multi-service (azd)",
+    "expected_confidence": "LOW",
+    "steps": [
+      "Navigate to test-scenarios/monorepo",
+      "Detect multiple apps (frontend/, api/)",
+      "Recommend azd + Infrastructure as Code",
+      "Confidence should be LOW (needs clarification)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "deployment",
+    "description": "Deploy static HTML site to Static Web Apps",
+    "scenario": "test-scenarios/static-html",
+    "validation": "curl returns 'Hello from Azure Static Web Apps'",
+    "steps": [
+      "Create resource group",
+      "Create Static Web App resource in centralus",
+      "Get deployment token",
+      "Deploy with swa deploy",
+      "Curl the endpoint and verify content",
+      "Delete resource group"
+    ],
+    "passes": false
+  },
+  {
+    "category": "deployment",
+    "description": "Deploy React/Vite app to Static Web Apps",
+    "scenario": "test-scenarios/react-app",
+    "validation": "curl returns HTML with React app",
+    "steps": [
+      "npm install",
+      "npm run build",
+      "Create resource group",
+      "Create Static Web App in centralus",
+      "Get deployment token",
+      "Deploy dist/ folder with swa deploy",
+      "Curl endpoint and verify React content",
+      "Delete resource group"
+    ],
+    "passes": false
+  },
+  {
+    "category": "deployment",
+    "description": "Deploy Python Flask app to App Service",
+    "scenario": "test-scenarios/python-flask",
+    "validation": "curl /health returns 'OK'",
+    "steps": [
+      "Create resource group",
+      "Create App Service plan (B1)",
+      "Create web app with Python runtime",
+      "Zip deploy the application",
+      "Wait for site to start",
+      "Curl /health endpoint",
+      "Delete resource group"
+    ],
+    "passes": false
+  },
+  {
+    "category": "deployment",
+    "description": "Deploy Azure Functions (Node.js)",
+    "scenario": "test-scenarios/azure-functions",
+    "validation": "curl /api/hello returns JSON response",
+    "steps": [
+      "npm install",
+      "Create resource group",
+      "Create storage account",
+      "Create Function App (Node.js runtime)",
+      "Publish with func azure functionapp publish --javascript",
+      "Curl /api/hello endpoint",
+      "Verify JSON response",
+      "Delete resource group"
+    ],
+    "passes": false
+  }
+]

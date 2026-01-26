@@ -33,7 +33,7 @@ az webapp create \
   --name myapp \
   --resource-group myapp-rg \
   --plan myapp-plan \
-  --runtime "NODE:20-lts"
+  --runtime "NODE:22-lts"
 
 # 4. Deploy code
 az webapp deploy \
@@ -81,10 +81,10 @@ az appservice plan create \
 
 ### Available Runtimes (Linux)
 
-**Node.js:**
+**Node.js (use LTS versions):**
 ```bash
---runtime "NODE:18-lts"
---runtime "NODE:20-lts"
+--runtime "NODE:22-lts"   # LTS - Recommended (EOL: April 2027)
+--runtime "NODE:20-lts"   # LTS (EOL: April 2026)
 ```
 
 **Python:**
@@ -401,7 +401,7 @@ az webapp create \
   --name myapp \
   --resource-group myapp-rg \
   --plan myapp-plan \
-  --runtime "NODE:20-lts"
+  --runtime "NODE:22-lts"
 
 az webapp config appsettings set \
   --name myapp \
@@ -460,7 +460,7 @@ az webapp create \
   --name myapp \
   --resource-group myapp-rg \
   --plan myapp-plan \
-  --runtime "NODE:20-lts"
+  --runtime "NODE:22-lts"
 
 az webapp config appsettings set \
   --name myapp \

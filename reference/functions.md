@@ -36,7 +36,7 @@ az functionapp create \
   --storage-account myfuncstorage \
   --consumption-plan-location eastus \
   --runtime node \
-  --runtime-version 20 \
+  --runtime-version 22 \
   --functions-version 4
 
 # 4. Deploy
@@ -110,10 +110,10 @@ az functionapp create \
 
 ### Supported Runtimes
 
-**Node.js:**
+**Node.js (use LTS versions):**
 ```bash
---runtime node --runtime-version 18
---runtime node --runtime-version 20
+--runtime node --runtime-version 22   # LTS - Recommended (EOL: April 2027)
+--runtime node --runtime-version 20   # LTS (EOL: April 2026)
 ```
 
 **Python:**

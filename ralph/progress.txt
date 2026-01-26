@@ -1,0 +1,8 @@
+# Azure Deploy Skill - Progress Log
+
+## Testing Started
+- Date: [Auto-populated by Ralph]
+- Goal: Validate detection and deployment workflows in SKILL.md
+
+---
+

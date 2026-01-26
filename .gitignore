@@ -1,0 +1,18 @@
+
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+
+# Build outputs
+dist/
+build/
+
+# Local settings (may contain secrets)
+local.settings.json
+
+# Lock files (optional - can be committed for reproducibility)
+package-lock.json
+
+# OS files
+.DS_Store

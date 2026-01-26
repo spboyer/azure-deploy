@@ -1,91 +1,159 @@
 # Azure Deploy Skill
 
-A Claude/Copilot skill for deploying applications to Azure App Service, Azure Functions, and Static Web Apps.
+A Claude/Copilot skill for deploying applications to Azure. Automatically detects your application type, recommends the optimal Azure service, and guides you through deployment.
 
-## Features
+## Supported Azure Services
 
-- **Smart Detection**: Automatically detects application type and recommends the optimal Azure service
-- **Local Preview**: Test applications locally before deploying (no Azure auth required)
-- **Guided Deployment**: Step-by-step deployment with Azure CLI
-- **Multi-Service Support**: Complex applications handled with azd + Infrastructure as Code
-- **Dependency Management**: Auto-detects and installs missing CLI tools
+| Service | Best For |
+|---------|----------|
+| **Static Web Apps** | React, Vue, Angular, static sites, JAMstack |
+| **App Service** | Full-stack apps, APIs, SSR frameworks (Next.js, Nuxt) |
+| **Azure Functions** | Serverless, event-driven, scheduled tasks |
 
-## Quick Start
+## Installation
 
-### Install the Skill
+### Option 1: Claude Code Plugin
 
 ```bash
-# Claude Code
+# Add this repository as a plugin
 /plugin install azure-deploy
-
-# Or add to your Claude configuration
 ```
 
-### Usage
+### Option 2: Manual Installation
 
-Simply ask Claude to deploy your application:
+Clone and add the skill folder to your Claude/Copilot configuration.
+
+## Usage
+
+### Basic Usage
+
+Simply describe what you want to deploy:
 
 ```
 "Deploy this app to Azure"
-"Help me get this running on Azure"
-"What Azure service should I use for this project?"
-"Preview my app locally"
+"Help me get this running on Azure"  
+"What Azure service should I use?"
 ```
 
-## What It Does
+### Explicit Skill Invocation
 
-### 1. Detects Your Application Type
+> **Note**: If you have the Azure MCP tools enabled, phrases like "deploy to Azure" may trigger the MCP instead of this skill. Use explicit invocation if needed:
 
-The skill analyzes your project to determine:
-- Framework (React, Vue, Angular, Next.js, Express, Flask, .NET, etc.)
-- Whether it's static, SSR, or serverless
-- If it needs multiple services
+```
+"Use the azure-deploy skill to deploy my app"
+"@azure-deploy help me deploy this"
+```
 
-### 2. Recommends the Right Service
+Or reference the skill directly in your prompt:
+```
+"Using the azure-deploy skill, analyze my project and recommend an Azure service"
+```
 
-| Application Type | Recommended Service |
-|-----------------|---------------------|
-| Static frontend (React, Vue, Angular) | Static Web Apps |
-| Static + serverless API | Static Web Apps + managed Functions |
-| SSR frameworks (Next.js SSR, Nuxt SSR) | App Service |
-| Full backend (Express, Flask, .NET) | App Service |
-| Event-driven / triggers | Azure Functions |
-| Multi-service / complex | azd + Infrastructure as Code |
+## What the Skill Does
 
-### 3. Handles Dependencies
+### 1. Detects Your Application
 
-Automatically checks for and helps install:
-- Azure CLI (`az`)
-- Azure Functions Core Tools (`func`)
-- Static Web Apps CLI (`swa`)
-- Azure Developer CLI (`azd`)
-- Project dependencies (npm, pip, dotnet, etc.)
+The skill scans your project for:
+- **Package files**: `package.json`, `requirements.txt`, `*.csproj`, `pom.xml`
+- **Framework configs**: `next.config.js`, `vite.config.ts`, `angular.json`
+- **Azure configs**: `azure.yaml`, `host.json`, `staticwebapp.config.json`
 
-### 4. Deploys Your Application
+### 2. Recommends a Service
 
-Provides complete deployment commands and guides you through:
-- Resource creation
+| Detection | Recommendation |
+|-----------|----------------|
+| `host.json` or `function.json` | Azure Functions |
+| `staticwebapp.config.json` | Static Web Apps |
+| React/Vue/Angular + Vite | Static Web Apps |
+| Next.js with `output: 'export'` | Static Web Apps |
+| Next.js with SSR | App Service |
+| Express/Flask/FastAPI | App Service |
+| Monorepo / multiple services | azd + Infrastructure as Code |
+
+### 3. Handles Prerequisites
+
+- Checks for Azure CLI, installs if missing
+- **Auto-login**: Runs `az login` if not authenticated
+- Installs project dependencies (`npm install`, etc.)
+
+### 4. Deploys Your App
+
+Provides step-by-step commands for:
+- Resource group creation
+- Service provisioning
+- Code deployment
 - Configuration
-- Deployment
-- Troubleshooting
+
+## Local Preview
+
+Test your app locally before deploying (no Azure login required):
+
+```bash
+# Static Web Apps
+swa start ./dist
+
+# Azure Functions  
+func start
+
+# App Service apps
+npm run dev  # or flask run, dotnet run, etc.
+```
+
+## Multi-Service Applications
+
+For complex applications with multiple components, the skill recommends **Azure Developer CLI (azd)** with Infrastructure as Code:
+
+```bash
+azd init      # Initialize project
+azd up        # Provision + deploy
+```
+
+## Test Scripts
+
+The skill includes test scripts to validate functionality:
+
+```bash
+# Test app detection logic
+./test-detection.sh
+
+# Test actual Azure deployments (requires Azure subscription)
+./test-deploy.sh
+```
 
 ## Reference Documentation
 
-The skill includes comprehensive guides:
+Detailed guides are available in the `reference/` folder:
 
-- [App Service Guide](./reference/app-service.md) - Full web app deployment
-- [Azure Functions Guide](./reference/functions.md) - Serverless functions
-- [Static Web Apps Guide](./reference/static-web-apps.md) - Static sites and JAMstack
-- [Local Preview Guide](./reference/local-preview.md) - Local development setup
-- [Multi-Service Guide](./reference/multi-service.md) - azd and IaC patterns
-- [Azure Verified Modules](./reference/azure-verified-modules.md) - Bicep module catalog
-- [Troubleshooting Guide](./reference/troubleshooting.md) - Common issues and fixes
+- [App Service Guide](./reference/app-service.md)
+- [Azure Functions Guide](./reference/functions.md)
+- [Static Web Apps Guide](./reference/static-web-apps.md)
+- [Local Preview Guide](./reference/local-preview.md)
+- [Multi-Service Guide](./reference/multi-service.md)
+- [Azure Verified Modules](./reference/azure-verified-modules.md)
+- [Troubleshooting](./reference/troubleshooting.md)
 
 ## Requirements
 
-- Azure subscription
-- Azure CLI (skill can help install)
-- Node.js 18+ (for SWA CLI and Functions Core Tools)
+- **Azure subscription** (for deployment)
+- **Azure CLI** (skill can install)
+- **Node.js 18+** (for SWA CLI, Functions Core Tools)
+
+## Known Limitations
+
+### Azure MCP Collision
+
+If you have Azure MCP tools enabled in your environment, generic phrases like "deploy to Azure" may invoke the MCP instead of this skill. Solutions:
+
+1. Use explicit skill invocation (see Usage above)
+2. Reference specific skill features: "detect my app type and recommend an Azure service"
+3. Disable Azure MCP deploy tools if you prefer this skill
+
+### Region Availability
+
+Static Web Apps are only available in certain regions:
+- `centralus`, `eastus2`, `westus2`, `westeurope`, `eastasia`
+
+The skill automatically uses compatible regions.
 
 ## License
 

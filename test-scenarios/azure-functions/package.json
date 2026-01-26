@@ -1,12 +1,16 @@
 {
-  "name": "azure-functions-project",
+  "name": "azure-functions-test",
   "version": "1.0.0",
-  "main": "dist/src/functions/*.js",
+  "description": "Azure Functions test project using Node.js v4 programming model",
+  "main": "src/functions/*.js",
   "scripts": {
-    "build": "tsc",
-    "start": "func start"
+    "start": "func start",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }

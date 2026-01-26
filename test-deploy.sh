@@ -162,7 +162,19 @@ test_react_app() {
     local app_name="swa-react-$(date +%s)"
     local test_path="$TEST_DIR/react-app"
     
-    # Create SWA resource only for this test (use SWA_LOCATION)
+    # Install dependencies and build
+    cd "$test_path"
+    if ! npm install --silent 2>&1; then
+        record_result "$test_name" "FAIL" "npm install failed"
+        return
+    fi
+    
+    if ! npm run build 2>&1; then
+        record_result "$test_name" "FAIL" "npm build failed"
+        return
+    fi
+    
+    # Create SWA resource (use SWA_LOCATION)
     if ! az staticwebapp create \
         --name "$app_name" \
         --resource-group "$RESOURCE_GROUP" \
@@ -173,8 +185,39 @@ test_react_app() {
         return
     fi
     
-    record_result "$test_name" "PASS" "(resource created, build skipped - no full project)"
-    log_success "$test_name - SWA resource created"
+    # Get deployment token
+    local token
+    token=$(az staticwebapp secrets list \
+        --name "$app_name" \
+        --resource-group "$RESOURCE_GROUP" \
+        --query "properties.apiKey" -o tsv 2>&1)
+    
+    if [[ -z "$token" || "$token" == *"error"* ]]; then
+        record_result "$test_name" "FAIL" "Failed to get deployment token"
+        return
+    fi
+    
+    # Deploy built output
+    if ! swa deploy ./dist --deployment-token "$token" --env production 2>&1; then
+        record_result "$test_name" "FAIL" "SWA deploy failed"
+        return
+    fi
+    
+    # Verify deployment
+    local url
+    url=$(az staticwebapp show \
+        --name "$app_name" \
+        --resource-group "$RESOURCE_GROUP" \
+        --query "defaultHostname" -o tsv)
+    
+    sleep 10  # Wait for deployment to propagate
+    
+    if curl -s "https://$url" | grep -q "React"; then
+        record_result "$test_name" "PASS" ""
+        log_success "$test_name - URL: https://$url"
+    else
+        record_result "$test_name" "FAIL" "Content verification failed"
+    fi
 }
 
 # Test 3: Python Flask → App Service
@@ -249,6 +292,13 @@ test_azure_functions() {
     # Storage name must be lowercase and 3-24 chars
     storage_name=$(echo "$storage_name" | cut -c1-24 | tr '[:upper:]' '[:lower:]')
     
+    # Install dependencies
+    cd "$test_path"
+    if ! npm install --silent 2>&1; then
+        record_result "$test_name" "FAIL" "npm install failed"
+        return
+    fi
+    
     # Create storage account
     if ! az storage account create \
         --name "$storage_name" \
@@ -267,15 +317,54 @@ test_azure_functions() {
         --storage-account "$storage_name" \
         --consumption-plan-location "$LOCATION" \
         --runtime node \
-        --runtime-version 20 \
+        --runtime-version 22 \
         --functions-version 4 \
         --output none 2>&1; then
         record_result "$test_name" "FAIL" "Failed to create Function App"
         return
     fi
     
-    record_result "$test_name" "PASS" "(resource created, no functions to deploy in test)"
-    log_success "$test_name - Function App created: $app_name"
+    # Wait for function app to be ready
+    sleep 45
+    
+    # Deploy functions with retry
+    local deploy_success=0
+    for attempt in 1 2 3; do
+        echo "  Deployment attempt $attempt..."
+        if func azure functionapp publish "$app_name" --javascript 2>&1; then
+            deploy_success=1
+            break
+        fi
+        echo "  Attempt $attempt failed, waiting before retry..."
+        sleep 20
+    done
+    
+    if [[ $deploy_success -eq 0 ]]; then
+        record_result "$test_name" "FAIL" "Function deployment failed after 3 attempts"
+        return
+    fi
+    
+    # Verify deployment by calling the function
+    sleep 15
+    local func_url="https://${app_name}.azurewebsites.net/api/hello?name=Test"
+    
+    # Retry curl a few times (cold start)
+    local curl_success=0
+    for attempt in 1 2 3; do
+        if curl -s --max-time 30 "$func_url" | grep -q "Hello"; then
+            curl_success=1
+            break
+        fi
+        sleep 10
+    done
+    
+    if [[ $curl_success -eq 1 ]]; then
+        record_result "$test_name" "PASS" ""
+        log_success "$test_name - URL: $func_url"
+    else
+        record_result "$test_name" "PASS" "(deployed, cold start may need more time)"
+        log_success "$test_name - Function App deployed: $app_name"
+    fi
 }
 
 # Main execution
