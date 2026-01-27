@@ -314,6 +314,26 @@ swa deploy ./dist \
   --env production
 ```
 
+**Plain HTML Site (Single File or No Build Step):**
+
+For plain HTML sites without a build process, SWA CLI requires content in a dedicated folder:
+```bash
+# Create output directory and copy files
+mkdir -p dist && cp -r *.html *.css *.js *.png *.jpg *.svg dist/ 2>/dev/null || true
+
+# Get deployment token
+TOKEN=$(az staticwebapp secrets list \
+  --name <app-name> \
+  --resource-group <resource-group> \
+  --query "properties.apiKey" -o tsv)
+
+# Deploy from dist folder
+swa deploy ./dist --deployment-token "$TOKEN" --env production
+
+# Clean up temp folder (optional)
+rm -rf dist
+```
+
 **Smart defaults:**
 - SKU: `Free` for dev/test, `Standard` for production
 - Location: SWA has limited regions - use `centralus`, `eastus2`, `westus2`, `westeurope`, or `eastasia`
