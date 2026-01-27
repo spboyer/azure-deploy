@@ -41,7 +41,7 @@
       "Detect as Azure Functions project",
       "Confidence should be HIGH (explicit config)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",
