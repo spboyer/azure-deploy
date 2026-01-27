@@ -46,3 +46,6 @@ Summary per iteration:
 
 Note: Ralph's `--allow-profile` flag has a bug with unset arrays in `set -u` mode.
 Tests were run directly using ./test-detection.sh and ./test-local.sh instead.
+
+2026-01-27: Detection PRD update — react-app (React/Vite) correctly recommends Static Web Apps with MEDIUM confidence; marked passes: true.
+2026-01-27: Detection PRD update — python-flask correctly recommends App Service (Flask) with MEDIUM confidence; marked passes: true.

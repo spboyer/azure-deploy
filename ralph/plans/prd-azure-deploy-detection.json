@@ -12,7 +12,7 @@
       "Recommend Static Web Apps",
       "Confidence should be MEDIUM (framework detection)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",
@@ -27,7 +27,7 @@
       "Recommend App Service",
       "Confidence should be MEDIUM"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",
