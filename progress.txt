@@ -53,3 +53,4 @@ Tests were run directly using ./test-detection.sh and ./test-local.sh instead.
 2026-01-27: Detection PRD update — python-flask verified as App Service (Flask) with MEDIUM confidence; marked passes: true.
 2026-01-27: Detection PRD sync — azure-functions verified as Azure Functions (host.json present), confidence HIGH; marked passes=true.
 2026-01-27: Detection PRD update — static-html verified as pure static site (index.html present, no package.json) → Static Web Apps with HIGH confidence; marked passes=true.
+2026-01-27: Detection PRD update — nextjs-ssr verified as Next.js SSR (no output: 'export', API route present) → App Service with MEDIUM confidence; marked passes=true.
