@@ -563,7 +563,7 @@ cat ralph/plans/prd-azure-deploy-detection.json | grep -A 5 '"passes": false'
 
 **Error**: `Static Web Apps not available in this region`
 
-**Solution**: Ralph automatically uses compatible regions (`centralus`, `eastus2`, `westus2`, `westeurope`), but if issues occur:
+**Solution**: Ralph automatically uses compatible regions (`centralus`, `eastus2`, `westus2`) as configured in the deployment prompts, but if issues occur:
 
 ```bash
 # Verify region availability
