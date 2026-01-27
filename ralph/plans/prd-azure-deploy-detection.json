@@ -56,7 +56,7 @@
       "Recommend Static Web Apps",
       "Confidence should be HIGH"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",
