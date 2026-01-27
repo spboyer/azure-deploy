@@ -2,25 +2,35 @@
 
 This folder contains assets for running automated "Identify → Deploy → Test → Improve" loops using [Ralph](https://github.com/soderlind/ralph).
 
+> **📖 For comprehensive documentation**, see the [Ralph Loop Configuration Guide](../docs/ralph_loop_configuration.md) which includes detailed setup instructions, test modes, best practices, and troubleshooting.
+
 ## Prerequisites
 
-1. **Clone Ralph** (if not already done):
+Before running Ralph tests:
+
+1. **Clone Ralph** as a sibling directory:
    ```bash
-   cd ..
-   git clone https://github.com/soderlind/ralph
-   cd azure-deploy
+   cd .. && git clone https://github.com/soderlind/ralph && cd azure-deploy
    ```
 
 2. **Install GitHub Copilot CLI**:
    ```bash
-   brew upgrade copilot
-   # or: npm i -g @github/copilot
+   # Install via Homebrew (recommended)
+   brew install copilot
+   
+   # Or via npm
+   npm i -g @github/copilot
+   
+   # Or as GitHub CLI extension
+   gh extension install github/gh-copilot
    ```
 
-3. **Azure CLI** (for deployment tests):
+3. **Azure CLI** (for deployment tests only):
    ```bash
    az login
    ```
+
+See the [full guide](../docs/ralph_loop_configuration.md#prerequisites) for detailed instructions.
 
 ## Quick Start
 

@@ -182,6 +182,12 @@ Detailed guides are available in the `reference/` folder:
 - [Azure Verified Modules](./reference/azure-verified-modules.md)
 - [Troubleshooting](./reference/troubleshooting.md)
 
+## Continuous Improvement with Ralph Loop
+
+For automated testing and continuous improvement of the Azure Deploy skill, see:
+
+- [Ralph Loop Configuration Guide](./docs/ralph_loop_configuration.md) - Comprehensive guide for setting up and running automated tests with Ralph
+
 ## Requirements
 
 - **Azure subscription** (for deployment only)
