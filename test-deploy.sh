@@ -155,11 +155,21 @@ test_static_html() {
         return
     fi
     
-    # Deploy
-    if ! swa deploy "$test_path" --deployment-token "$token" --env production 2>&1; then
+    # Create dist folder and copy files (SWA CLI requires output folder for plain HTML)
+    cd "$test_path"
+    mkdir -p dist
+    # Copy all files except hidden files and directories
+    find . -maxdepth 1 -type f -not -name ".*" -exec cp {} dist/ \;
+    
+    # Deploy from dist folder
+    if ! swa deploy ./dist --deployment-token "$token" --env production 2>&1; then
+        rm -rf dist
         record_result "$test_name" "FAIL" "SWA deploy failed"
         return
     fi
+    
+    # Clean up dist folder
+    rm -rf dist
     
     # Verify deployment
     local url
@@ -175,6 +185,73 @@ test_static_html() {
         record_url "static-html" "https://$url"
         log_success "$test_name - URL: https://$url"
     else
+        rm -rf dist  # Clean up on verification failure
+        record_result "$test_name" "FAIL" "Content verification failed"
+    fi
+}
+
+# Test 1b: Single File HTML → Static Web Apps
+test_single_file_html() {
+    local test_name="Single File HTML → Static Web Apps"
+    log_info "Testing: $test_name"
+    
+    local app_name="swa-single-$(date +%s)"
+    local test_path="$TEST_DIR/single-file-html"
+    
+    # Create SWA (use SWA_LOCATION - limited region availability)
+    if ! az staticwebapp create \
+        --name "$app_name" \
+        --resource-group "$RESOURCE_GROUP" \
+        --location "$SWA_LOCATION" \
+        --sku Free \
+        --output none 2>&1; then
+        record_result "$test_name" "FAIL" "Failed to create Static Web App"
+        return
+    fi
+    
+    # Get deployment token
+    local token
+    token=$(az staticwebapp secrets list \
+        --name "$app_name" \
+        --resource-group "$RESOURCE_GROUP" \
+        --query "properties.apiKey" -o tsv 2>&1)
+    
+    if [[ -z "$token" || "$token" == *"error"* ]]; then
+        record_result "$test_name" "FAIL" "Failed to get deployment token"
+        return
+    fi
+    
+    # Create dist folder and copy files (SWA CLI requires output folder)
+    cd "$test_path"
+    mkdir -p dist
+    # Copy all files except hidden files and directories
+    find . -maxdepth 1 -type f -not -name ".*" -exec cp {} dist/ \;
+    
+    # Deploy from dist folder
+    if ! swa deploy ./dist --deployment-token "$token" --env production 2>&1; then
+        rm -rf dist
+        record_result "$test_name" "FAIL" "SWA deploy failed"
+        return
+    fi
+    
+    # Clean up dist folder
+    rm -rf dist
+    
+    # Verify deployment
+    local url
+    url=$(az staticwebapp show \
+        --name "$app_name" \
+        --resource-group "$RESOURCE_GROUP" \
+        --query "defaultHostname" -o tsv)
+    
+    sleep 10  # Wait for deployment to propagate
+    
+    if curl -s "https://$url" | grep -q "Single File Deployment"; then
+        record_result "$test_name" "PASS" ""
+        record_url "single-file-html" "https://$url"
+        log_success "$test_name - URL: https://$url"
+    else
+        rm -rf dist  # Clean up on verification failure
         record_result "$test_name" "FAIL" "Content verification failed"
     fi
 }
@@ -412,6 +489,7 @@ main() {
     
     # Run tests
     test_static_html
+    test_single_file_html
     test_react_app
     test_python_flask
     test_azure_functions

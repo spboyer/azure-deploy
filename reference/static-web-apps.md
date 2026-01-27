@@ -149,6 +149,30 @@ Place in your output directory or repository root:
 
 ## Framework-Specific Setup
 
+### Plain HTML (No Build Step)
+
+For plain HTML sites without a build process, SWA CLI requires files in a dedicated output folder:
+
+```bash
+# Create output directory and copy files
+mkdir -p dist
+cp -r *.html *.css *.js *.png *.jpg *.svg dist/ 2>/dev/null || true
+
+# Get deployment token
+TOKEN=$(az staticwebapp secrets list \
+  --name <app-name> \
+  --resource-group <resource-group> \
+  --query "properties.apiKey" -o tsv)
+
+# Deploy from dist folder
+swa deploy ./dist --deployment-token "$TOKEN" --env production
+
+# Clean up temp folder (optional)
+rm -rf dist
+```
+
+**Note:** SWA CLI does not support deploying directly from the root directory when it contains only HTML files. Always use an output folder like `dist/` or `public/`.
+
 ### React (Vite/CRA)
 
 ```bash
