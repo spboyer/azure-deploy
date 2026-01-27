@@ -158,7 +158,8 @@ test_static_html() {
     # Create dist folder and copy files (SWA CLI requires output folder for plain HTML)
     cd "$test_path"
     mkdir -p dist
-    cp -r *.html *.css *.js *.png *.jpg *.svg dist/ 2>/dev/null || true
+    # Copy all files except hidden files and directories
+    find . -maxdepth 1 -type f -not -name ".*" -exec cp {} dist/ \;
     
     # Deploy from dist folder
     if ! swa deploy ./dist --deployment-token "$token" --env production 2>&1; then
@@ -184,6 +185,7 @@ test_static_html() {
         record_url "static-html" "https://$url"
         log_success "$test_name - URL: https://$url"
     else
+        rm -rf dist  # Clean up on verification failure
         record_result "$test_name" "FAIL" "Content verification failed"
     fi
 }
@@ -219,10 +221,11 @@ test_single_file_html() {
         return
     fi
     
-    # Create dist folder and copy single file (SWA CLI requires output folder)
+    # Create dist folder and copy files (SWA CLI requires output folder)
     cd "$test_path"
     mkdir -p dist
-    cp index.html dist/
+    # Copy all files except hidden files and directories
+    find . -maxdepth 1 -type f -not -name ".*" -exec cp {} dist/ \;
     
     # Deploy from dist folder
     if ! swa deploy ./dist --deployment-token "$token" --env production 2>&1; then
@@ -248,6 +251,7 @@ test_single_file_html() {
         record_url "single-file-html" "https://$url"
         log_success "$test_name - URL: https://$url"
     else
+        rm -rf dist  # Clean up on verification failure
         record_result "$test_name" "FAIL" "Content verification failed"
     fi
 }
