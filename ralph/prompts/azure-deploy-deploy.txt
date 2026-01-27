@@ -1,28 +1,60 @@
-Work in the current repo. Use these files as your source of truth:
-- The PRD JSON file provided as context (do not assume its path)
-- progress.txt
+You are testing DEPLOYMENTS for the Azure Deploy Copilot Skill.
 
-You are testing ACTUAL DEPLOYMENTS of the Azure Deploy Copilot Skill.
+Source files: PRD JSON (in context), progress.txt
 
-1. Find the highest-priority deployment test (passes: false).
-2. Check Azure CLI authentication (run `az login` if needed).
-3. Create a unique resource group for this test.
-4. Follow the deployment workflow in SKILL.md for the detected service type.
-5. After deployment, validate by curling the endpoint:
-   - For Static Web Apps: curl the default hostname
-   - For App Service: curl https://<app-name>.azurewebsites.net
-   - For Functions: curl https://<func-name>.azurewebsites.net/api/<function-name>
-6. Clean up the Azure resource group.
-7. If deployment succeeds and curl validates, mark passes: true.
-8. If deployment fails, analyze and fix the SKILL.md guidance.
-9. Append progress to progress.txt.
-10. Git commit the changes.
+## SKILL FILES TO EDIT
 
-IMPORTANT DEPLOYMENT NOTES:
-- Use centralus, eastus2, or westus2 for Static Web Apps
-- Use --javascript flag when publishing Node.js functions
-- Build React/Vue apps before deploying (npm run build)
-- Wait for App Service to start before curling
+- `SKILL.md` (root) - main skill with deployment workflows
+- `skills/azure-deploy/SKILL.md` - copy of skill (keep in sync)
+- `reference/*.md` - detailed guides per service:
+  - `reference/static-web-apps.md` - SWA CLI, regions, build configs
+  - `reference/app-service.md` - az webapp commands, runtimes
+  - `reference/functions.md` - func CLI, triggers, bindings
+  - `reference/local-preview.md` - dev server commands
 
-ONLY WORK ON ONE DEPLOYMENT TEST.
-If all deployment tests pass, output <promise>COMPLETE</promise>.
+## STEPS
+
+1. Grep PRD for `"passes": false` - if none found, output `<promise>COMPLETE</promise>` and stop.
+2. Take the FIRST failing deployment test.
+3. Verify Azure CLI auth: `az account show` (run `az login` if needed)
+4. Create unique resource group: `az group create --name ralph-test-<timestamp> --location centralus`
+5. Follow SKILL.md deployment workflow for the detected service type.
+6. Validate with curl (check PRD's validation field for expected response).
+7. Clean up: `az group delete --name <rg> --yes --no-wait`
+
+## IF DEPLOYMENT SUCCEEDS
+- Set that PRD item to `"passes": true`
+- Append to progress.txt: `[DATE] PASS: <scenario> deployed to <service>`
+- Git commit: `deploy: mark <scenario> passing`
+
+## IF DEPLOYMENT FAILS - EDIT THE SKILL
+
+**1. Identify the failure type:**
+- Wrong CLI command → fix in SKILL.md deployment section
+- Missing build step → add to build instructions
+- Wrong region → SWA only: centralus, eastus2, westus2, westeurope, eastasia
+- Missing flag/option → add to the command
+
+**2. Find the right section by searching:**
+- Static Web Apps → search for `## Static Web Apps Deployment` or `### SWA`
+- App Service → search for `## App Service Deployment`
+- Azure Functions → search for `## Azure Functions Deployment`
+
+**3. Also update the reference doc if needed:**
+- `reference/static-web-apps.md` - SWA-specific details
+- `reference/app-service.md` - App Service details
+- `reference/functions.md` - Functions details
+
+**4. Keep both SKILL.md files in sync** (root and skills/azure-deploy/)
+
+**5. After editing:**
+- Re-run deployment to verify fix works
+- Set PRD item to `"passes": true`
+- Append to progress.txt: `[DATE] FIX: <scenario> - fixed <issue> in deployment`
+- Git commit: `fix(skill): correct <service> deployment for <issue>`
+
+## RULES
+- ONE test per iteration
+- Only output `<promise>COMPLETE</promise>` if zero `"passes": false` remain
+- ALWAYS clean up Azure resources after testing
+- Use centralus/eastus2/westus2 for Static Web Apps

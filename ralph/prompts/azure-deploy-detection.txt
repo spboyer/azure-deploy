@@ -1,21 +1,56 @@
-Work in the current repo. Use these files as your source of truth:
-- The PRD JSON file provided as context (do not assume its path)
-- progress.txt
+You are testing DETECTION logic for the Azure Deploy Copilot Skill.
 
-You are testing the DETECTION logic of the Azure Deploy Copilot Skill.
+Source files: PRD JSON (in context), progress.txt
 
-1. Find the highest-priority detection test (passes: false).
-2. Navigate to the test scenario folder.
-3. Analyze the project files to detect:
-   - Application type (static, function, backend)
-   - Framework (React, Vue, Flask, etc.)
-   - Recommended Azure service
-   - Confidence level (HIGH/MEDIUM/LOW)
-4. Compare detection result against expected outcome in the PRD.
-5. If detection is wrong, fix the SKILL.md detection logic.
-6. Update the PRD with passes: true if correct.
-7. Append progress to progress.txt.
-8. Git commit the changes.
+## SKILL FILES TO EDIT
 
-ONLY WORK ON ONE TEST SCENARIO.
-If all detection tests pass, output <promise>COMPLETE</promise>.
+- `SKILL.md` (root) - main skill with detection rules
+- `skills/azure-deploy/SKILL.md` - copy of skill (keep in sync)
+- `reference/*.md` - detailed guides per service
+
+## STEPS
+
+1. Grep PRD for `"passes": false` - if none found, output `<promise>COMPLETE</promise>` and stop.
+2. Take the FIRST failing test.
+3. Navigate to the scenario folder, examine files (package.json, requirements.txt, configs, etc.)
+4. Compare against SKILL.md detection rules in "Phase 1: Application Detection" section.
+5. Check if detection would produce the PRD's expected_service and expected_confidence.
+
+## IF DETECTION IS CORRECT
+- Set that PRD item to `"passes": true`
+- Append one line to progress.txt: `[DATE] PASS: <scenario> - <service>/<confidence>`
+- Git commit: `detection: mark <scenario> passing`
+
+## IF DETECTION IS WRONG - EDIT THE SKILL
+
+**1. Find the right section in SKILL.md by searching for headers:**
+- Node.js → search for `**Node.js / JavaScript / TypeScript:**`
+- Python → search for `**Python:**`
+- .NET → search for `**.NET:**`
+- Java → search for `**Java:**`
+- Static → search for `**Static Only:**`
+- Multi-service → search for `### Step 1.3: Detect Multi-Service`
+- Confidence → search for `### Step 1.4: Confidence Assessment`
+
+**2. Add or fix the detection pattern:**
+```
+├── <file or signal to check> → <framework/type> → <Azure Service>
+```
+
+**3. If the service needs more detail, also update `reference/<service>.md`:**
+- `reference/static-web-apps.md` - SWA deployment details
+- `reference/app-service.md` - App Service details
+- `reference/functions.md` - Azure Functions details
+- `reference/multi-service.md` - azd/IaC patterns
+
+**4. Keep both SKILL.md files in sync** (root and skills/azure-deploy/)
+
+**5. After editing:**
+- Set PRD item to `"passes": true`
+- Append to progress.txt: `[DATE] FIX: <scenario> - added/fixed <pattern> detection`
+- Git commit: `fix(skill): add <pattern> detection rule`
+
+## RULES
+- ONE test per iteration
+- Only output `<promise>COMPLETE</promise>` if zero `"passes": false` remain
+- Verify your edit would produce the correct detection before marking passing
