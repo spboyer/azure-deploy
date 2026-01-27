@@ -85,6 +85,6 @@
       "Recommend azd + Infrastructure as Code",
       "Confidence should be LOW (needs clarification)"
     ],
-    "passes": false
+    "passes": true
   }
 ]
