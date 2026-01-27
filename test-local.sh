@@ -461,6 +461,62 @@ test_monorepo() {
 }
 
 # =============================================================================
+# Test 8: Container App with Docker Compose
+# =============================================================================
+test_container_app() {
+    local test_name="Container App (Docker Compose)"
+    log_info "Testing: $test_name"
+    
+    # Check if docker is installed
+    if ! command -v docker >/dev/null 2>&1; then
+        log_warn "Docker not installed, skipping test"
+        record_result "$test_name" "SKIP" "Docker not installed"
+        return
+    fi
+    
+    # Check if docker-compose or docker compose is available
+    local compose_cmd=""
+    if command -v docker-compose >/dev/null 2>&1; then
+        compose_cmd="docker-compose"
+    elif docker compose version >/dev/null 2>&1; then
+        compose_cmd="docker compose"
+    else
+        log_warn "Docker Compose not available, skipping test"
+        record_result "$test_name" "SKIP" "Docker Compose not available"
+        return
+    fi
+    
+    local test_path="$TEST_DIR/container-app"
+    local port=8080
+    
+    # Kill any existing process on port
+    kill_port $port
+    
+    cd "$test_path"
+    
+    # Start with Docker Compose
+    $compose_cmd up -d --build >/dev/null 2>&1
+    
+    # Wait for container to be healthy
+    if ! wait_for_server "http://localhost:$port/health" 60; then
+        $compose_cmd down >/dev/null 2>&1 || true
+        record_result "$test_name" "FAIL" "Container failed to start"
+        return
+    fi
+    
+    # Test the health endpoint
+    if curl -s "http://localhost:$port/health" | grep -q "OK"; then
+        record_result "$test_name" "PASS"
+        log_success "$test_name - http://localhost:$port"
+    else
+        record_result "$test_name" "FAIL" "Health check failed"
+    fi
+    
+    # Cleanup
+    $compose_cmd down >/dev/null 2>&1 || true
+}
+
+# =============================================================================
 # Main
 # =============================================================================
 main() {
@@ -483,6 +539,7 @@ main() {
     test_swa_cli
     test_nextjs_dev
     test_monorepo
+    test_container_app
     
     print_summary
 }

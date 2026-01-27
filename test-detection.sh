@@ -27,6 +27,18 @@ detect_app_type() {
     elif [[ -f "$dir/staticwebapp.config.json" ]]; then
         result="Static Web Apps"
         confidence="HIGH"
+    # HIGH confidence: Dockerfile present → Container Apps
+    elif [[ -f "$dir/Dockerfile" ]]; then
+        if [[ -f "$dir/docker-compose.yml" ]] || [[ -f "$dir/docker-compose.yaml" ]]; then
+            result="Container Apps (multi-container)"
+            confidence="HIGH"
+        else
+            result="Container Apps"
+            confidence="HIGH"
+        fi
+    elif [[ -f "$dir/docker-compose.yml" ]] || [[ -f "$dir/docker-compose.yaml" ]]; then
+        result="Container Apps (docker-compose)"
+        confidence="HIGH"
     # MEDIUM confidence: Framework detection
     elif [[ -f "$dir/package.json" ]]; then
         # Check for specific frameworks
