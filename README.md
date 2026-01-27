@@ -9,6 +9,7 @@ A Claude/Copilot skill for deploying applications to Azure. Automatically detect
 | **Static Web Apps** | React, Vue, Angular, static sites, JAMstack |
 | **App Service** | Full-stack apps, APIs, SSR frameworks (Next.js, Nuxt) |
 | **Azure Functions** | Serverless, event-driven, scheduled tasks |
+| **Container Apps** | Containerized apps, microservices, Dockerfiles |
 
 ## Installation
 
@@ -79,6 +80,7 @@ The skill scans your project for:
 |-----------|----------------|
 | `host.json` or `function.json` | Azure Functions |
 | `staticwebapp.config.json` | Static Web Apps |
+| `Dockerfile` or `docker-compose.yml` | Container Apps |
 | React/Vue/Angular + Vite | Static Web Apps |
 | Next.js with `output: 'export'` | Static Web Apps |
 | Next.js with SSR | App Service |
@@ -112,6 +114,9 @@ func start
 
 # App Service apps
 npm run dev  # or flask run, dotnet run, etc.
+
+# Container Apps (Docker Compose)
+docker-compose up --build
 ```
 
 ## Multi-Service Applications
@@ -177,6 +182,7 @@ Detailed guides are available in the `reference/` folder:
 - [App Service Guide](./reference/app-service.md)
 - [Azure Functions Guide](./reference/functions.md)
 - [Static Web Apps Guide](./reference/static-web-apps.md)
+- [Container Apps Guide](./reference/container-apps.md)
 - [Local Preview Guide](./reference/local-preview.md)
 - [Multi-Service Guide](./reference/multi-service.md)
 - [Azure Verified Modules](./reference/azure-verified-modules.md)
@@ -189,6 +195,7 @@ Detailed guides are available in the `reference/` folder:
 - **Node.js 22 LTS** (recommended for SWA CLI, Functions Core Tools)
 - **Python 3.10+** (for Flask/Django apps)
 - **Azure Functions Core Tools** (for Functions development)
+- **Docker** (for Container Apps local preview)
 
 ## Known Limitations
 

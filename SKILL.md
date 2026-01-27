@@ -1,6 +1,6 @@
 ---
 name: azure-deploy
-description: Deploy applications to Azure App Service, Azure Functions, and Static Web Apps. Analyzes projects to recommend services, provides local preview, and guides deployment. Use phrases like "what Azure service should I use", "analyze my project for Azure", "preview locally", "guide me through deployment".
+description: Deploy applications to Azure App Service, Azure Functions, Static Web Apps, and Container Apps. Analyzes projects to recommend services, provides local preview, and guides deployment. Use phrases like "what Azure service should I use", "analyze my project for Azure", "preview locally", "guide me through deployment", "deploy my containerized app".
 ---
 
 # Azure Deploy Skill
@@ -25,6 +25,8 @@ Deploy applications to Azure with intelligent service selection, local preview, 
 | Monorepo deployment | "Deploy my monorepo to Azure" | Recommend azd + IaC |
 | Infrastructure as Code | "Set up IaC for this" / "Use azd" | azure.yaml + Bicep guidance |
 | Framework-specific | "Deploy my Next.js/React/Flask app" | Detect framework, recommend service |
+| Container deployment | "Deploy my containerized app" / "I have a Dockerfile" | Recommend Container Apps |
+| Docker/microservices | "Deploy with Docker" / "Deploy microservices" | Recommend Container Apps |
 
 **Explicit Invocation (most reliable):**
 ```
@@ -57,6 +59,8 @@ Look for these files first (HIGH confidence signals):
 | `azure.yaml` | Already configured for azd | Use `azd up` to deploy |
 | `function.json` or `host.json` | Azure Functions project | Deploy as Functions |
 | `staticwebapp.config.json` | Static Web Apps project | Deploy as SWA |
+| `Dockerfile` | Containerized application | Deploy as Container Apps |
+| `docker-compose.yml` | Multi-container application | Deploy as Container Apps |
 
 If found, skip to the appropriate deployment section.
 
@@ -113,6 +117,18 @@ pom.xml or build.gradle exists →
 ```
 index.html exists + no package.json/requirements.txt →
 └── Pure static site → Static Web Apps
+```
+
+**Containerized Applications:**
+```
+Dockerfile exists →
+├── Single Dockerfile in root → Container Apps
+├── Multiple Dockerfiles → Container Apps (microservices)
+└── docker-compose.yml → Container Apps (multi-container)
+
+No Dockerfile but containerizable →
+├── User requests Docker/container deployment → Generate Dockerfile + Container Apps
+└── Complex dependencies or custom runtime needs → Offer Container Apps option
 ```
 
 ### Step 1.3: Detect Multi-Service Architecture
@@ -544,6 +560,60 @@ az webapp deploy \
 
 See [App Service Guide](./reference/app-service.md) for configuration options.
 
+### 4.4 Azure Container Apps Deployment
+
+**Best for:** Containerized applications, microservices, apps with Dockerfiles, custom runtimes.
+
+**Create and deploy (with existing Dockerfile):**
+```bash
+# Create resource group
+az group create --name <resource-group> --location <location>
+
+# Deploy directly from source (builds in cloud)
+az containerapp up \
+  --name <app-name> \
+  --resource-group <resource-group> \
+  --source . \
+  --ingress external \
+  --target-port 8080
+```
+
+**Deploy from source without Dockerfile (auto-generates):**
+```bash
+# Container Apps can auto-detect and build many app types
+az containerapp up \
+  --name <app-name> \
+  --resource-group <resource-group> \
+  --source . \
+  --ingress external \
+  --target-port 3000
+```
+
+**Deploy from existing image:**
+```bash
+# Create Container Apps environment first
+az containerapp env create \
+  --name <env-name> \
+  --resource-group <resource-group> \
+  --location <location>
+
+# Deploy from ACR or Docker Hub
+az containerapp create \
+  --name <app-name> \
+  --resource-group <resource-group> \
+  --environment <env-name> \
+  --image <registry>/<image>:<tag> \
+  --target-port 8080 \
+  --ingress external
+```
+
+**Smart defaults:**
+- Plan: Consumption (serverless, scales to zero)
+- Build: Cloud build via ACR Tasks (no local Docker required)
+- Ingress: External on port 80/443
+
+See [Container Apps Guide](./reference/container-apps.md) for detailed configuration.
+
 ---
 
 ## Phase 5: Multi-Service Deployment (azd + IaC)
@@ -628,6 +698,12 @@ az group create --name <name> --location <location>
 - Check startup command if using custom entry point
 - Review deployment logs: `az webapp log tail --name <app> --resource-group <rg>`
 
+**Container Apps deployment fails:**
+- Verify Dockerfile builds locally: `docker build -t test .`
+- Check target port matches your app's listening port
+- Review logs: `az containerapp logs show --name <app> --resource-group <rg>`
+- Ensure ACR credentials are configured if using private registry
+
 See [Troubleshooting Guide](./reference/troubleshooting.md) for detailed solutions.
 
 ---
@@ -639,6 +715,7 @@ Load these guides as needed for detailed information:
 - [📦 App Service Guide](./reference/app-service.md) - Full App Service deployment reference
 - [⚡ Azure Functions Guide](./reference/functions.md) - Functions deployment and configuration
 - [🌐 Static Web Apps Guide](./reference/static-web-apps.md) - SWA deployment and configuration
+- [🐳 Container Apps Guide](./reference/container-apps.md) - Container Apps deployment and configuration
 - [🖥️ Local Preview Guide](./reference/local-preview.md) - Local development setup
 - [🏗️ Multi-Service Guide](./reference/multi-service.md) - azd and IaC patterns
 - [📚 Azure Verified Modules](./reference/azure-verified-modules.md) - Bicep module reference

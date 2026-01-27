@@ -299,18 +299,95 @@ module api 'br/public:avm/res/web/site:0.3.0' = {
 
 ### Microservices with Container Apps
 
+Best for containerized microservices with independent scaling:
+
 ```yaml
+# azure.yaml
 name: microservices
 services:
   gateway:
     project: ./services/gateway
     host: containerapp
+    docker:
+      path: ./services/gateway/Dockerfile
   users:
     project: ./services/users
     host: containerapp
+    docker:
+      path: ./services/users/Dockerfile
   orders:
     project: ./services/orders
     host: containerapp
+    docker:
+      path: ./services/orders/Dockerfile
+```
+
+```bicep
+// infra/main.bicep - Container Apps Environment + Apps
+module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.4.0' = {
+  name: 'container-env'
+  scope: rg
+  params: {
+    name: 'cae-${resourceToken}'
+    location: location
+    logAnalyticsWorkspaceResourceId: logAnalytics.outputs.resourceId
+  }
+}
+
+module gatewayApp 'br/public:avm/res/app/container-app:0.4.0' = {
+  name: 'gateway'
+  scope: rg
+  params: {
+    name: 'gateway-${resourceToken}'
+    environmentId: containerAppsEnvironment.outputs.resourceId
+    containers: [{
+      name: 'gateway'
+      image: '${acr.outputs.loginServer}/gateway:latest'
+      resources: { cpu: '0.5', memory: '1Gi' }
+    }]
+    ingressExternal: true
+    ingressTargetPort: 8080
+  }
+}
+```
+
+### Container Apps with Dapr (Service-to-Service)
+
+For distributed applications needing service discovery and pub/sub:
+
+```yaml
+# azure.yaml
+name: dapr-microservices
+services:
+  api:
+    project: ./api
+    host: containerapp
+    docker:
+      path: ./api/Dockerfile
+  worker:
+    project: ./worker
+    host: containerapp
+    docker:
+      path: ./worker/Dockerfile
+```
+
+```bicep
+// Enable Dapr on Container Apps
+module apiApp 'br/public:avm/res/app/container-app:0.4.0' = {
+  params: {
+    daprEnabled: true
+    daprAppId: 'api'
+    daprAppPort: 8080
+  }
+}
+
+module workerApp 'br/public:avm/res/app/container-app:0.4.0' = {
+  params: {
+    daprEnabled: true
+    daprAppId: 'worker'
+    daprAppPort: 8080
+  }
+}
 ```
 
 ### Event-Driven with Functions
@@ -327,6 +404,37 @@ services:
   notifications:
     project: ./functions/notifications
     host: function
+```
+
+### Hybrid: Static Frontend + Container Apps API
+
+Combines low-cost static hosting with flexible containerized backend:
+
+```yaml
+# azure.yaml
+name: hybrid-app
+services:
+  web:
+    project: ./frontend
+    host: staticwebapp
+    dist: dist
+  api:
+    project: ./api
+    host: containerapp
+    docker:
+      path: ./api/Dockerfile
+```
+
+```bicep
+// Link Container App as SWA backend
+module staticWebApp 'br/public:avm/res/web/static-site:0.3.0' = {
+  params: {
+    linkedBackends: [{
+      resourceId: apiApp.outputs.resourceId
+      region: location
+    }]
+  }
+}
 ```
 
 ---

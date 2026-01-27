@@ -327,6 +327,100 @@ az appservice plan update \
 
 ---
 
+## Container Apps Issues
+
+### Build Fails in Cloud
+
+```bash
+# Check ACR build logs
+az acr task logs --registry <acr-name>
+
+# Build locally first to debug
+docker build -t test .
+
+# Common issues:
+# - Missing files (check .dockerignore isn't excluding needed files)
+# - Wrong platform (add --platform linux/amd64 if building on Mac M1/M2)
+```
+
+### App Won't Start / Restarts Continuously
+
+```bash
+# Check console logs
+az containerapp logs show \
+  --name <app> \
+  --resource-group <rg> \
+  --type console \
+  --follow
+
+# Common causes:
+# - Wrong target port (must match EXPOSE in Dockerfile)
+# - App binding to localhost instead of 0.0.0.0
+# - Missing environment variables
+# - Health probe failing immediately
+```
+
+### Connection Refused (502/503 errors)
+
+```bash
+# Verify ingress is enabled
+az containerapp ingress show \
+  --name <app> \
+  --resource-group <rg>
+
+# Check target port matches your app
+# Your app MUST bind to 0.0.0.0:PORT, not localhost:PORT
+```
+
+### ACR Authentication Failed
+
+```bash
+# Option 1: Enable admin credentials (simpler)
+az acr update --name <acr-name> --admin-enabled true
+
+# Then get credentials
+az acr credential show --name <acr-name>
+
+# Option 2: Use managed identity (more secure)
+az containerapp registry set \
+  --name <app> \
+  --resource-group <rg> \
+  --server <acr-name>.azurecr.io \
+  --identity system
+```
+
+### Out of Memory / CPU Limits
+
+```bash
+# Increase container resources
+az containerapp update \
+  --name <app> \
+  --resource-group <rg> \
+  --cpu 1.0 \
+  --memory 2.0Gi
+
+# Note: Memory must be ≥ 2x CPU
+# Max on Consumption: 4 CPU, 8 GB memory
+```
+
+### Revision Not Activating
+
+```bash
+# List revisions to check status
+az containerapp revision list \
+  --name <app> \
+  --resource-group <rg> \
+  --output table
+
+# Activate specific revision
+az containerapp revision activate \
+  --name <app> \
+  --resource-group <rg> \
+  --revision <revision-name>
+```
+
+---
+
 ## azd Issues
 
 ### "azd not found"

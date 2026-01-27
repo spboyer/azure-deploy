@@ -379,7 +379,128 @@ DATABASE_URL=mongodb://localhost:27017/dev
 
 ## Docker-Based Local Development
 
-### With Docker Compose
+Use Docker Compose for local preview, especially for **Container Apps** deployments. This provides the most accurate simulation of production.
+
+### Prerequisites
+
+```bash
+# Install Docker Desktop
+# macOS: https://docs.docker.com/desktop/install/mac-install/
+# Windows: https://docs.docker.com/desktop/install/windows-install/
+# Linux: https://docs.docker.com/desktop/install/linux-install/
+
+# Verify installation
+docker --version
+docker-compose --version
+```
+
+### Basic Container App Preview
+
+For a single containerized app:
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+```
+
+```bash
+# Build and run
+docker-compose up --build
+
+# Run in background
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f app
+
+# Stop
+docker-compose down
+```
+
+### Container App with Database
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=mongodb://db:27017/myapp
+    depends_on:
+      - db
+
+  db:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+```
+
+### Multi-Service / Microservices Preview
+
+For Container Apps microservices architecture:
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://api:8080
+    depends_on:
+      - api
+
+  api:
+    build: ./api
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/myapp
+      - REDIS_URL=redis://cache:6379
+    depends_on:
+      - db
+      - cache
+
+  worker:
+    build: ./worker
+    environment:
+      - QUEUE_URL=redis://cache:6379
+    depends_on:
+      - cache
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=myapp
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  cache:
+    image: redis:alpine
+
+volumes:
+  postgres-data:
+```
+
+### With Azure Functions (Azurite)
 
 ```yaml
 # docker-compose.yml
@@ -410,6 +531,28 @@ services:
 
 ```bash
 docker-compose up
+```
+
+### Docker Compose Commands Reference
+
+```bash
+# Build without cache (after Dockerfile changes)
+docker-compose build --no-cache
+
+# Rebuild specific service
+docker-compose up --build api
+
+# Scale a service
+docker-compose up --scale worker=3
+
+# Execute command in running container
+docker-compose exec app sh
+
+# View resource usage
+docker-compose top
+
+# Clean up everything
+docker-compose down -v --rmi all
 ```
 
 ---
