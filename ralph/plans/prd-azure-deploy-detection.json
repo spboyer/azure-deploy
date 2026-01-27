@@ -27,7 +27,7 @@
       "Recommend App Service",
       "Confidence should be MEDIUM"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",

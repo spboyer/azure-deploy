@@ -50,3 +50,4 @@ Tests were run directly using ./test-detection.sh and ./test-local.sh instead.
 2026-01-27: Detection PRD update — react-app (React/Vite) correctly recommends Static Web Apps with MEDIUM confidence; marked passes: true.
 2026-01-27: Detection PRD update — python-flask correctly recommends App Service (Flask) with MEDIUM confidence; marked passes: true.
 2026-01-27: Detection PRD sync — set prd-azure-deploy-detection.json react-app passes=true.
+2026-01-27: Detection PRD update — python-flask verified as App Service (Flask) with MEDIUM confidence; marked passes: true.
