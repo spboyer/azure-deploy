@@ -592,7 +592,11 @@ jobs:
       - name: Install Copilot CLI
         run: npm i -g @github/copilot
       - name: Clone Ralph Framework
-        run: git clone https://github.com/soderlind/ralph ../ralph
+        run: |
+          # Pin to specific commit for supply chain security
+          git clone https://github.com/soderlind/ralph ../ralph
+          cd ../ralph
+          git checkout 3e1f8650e6c82678064ba761081791a476927948
       - name: Run Detection Tests
         run: ./ralph/ralph.sh --detection 10
       - name: Upload Progress Log
@@ -601,6 +605,8 @@ jobs:
           name: ralph-progress
           path: ralph/progress.txt
 ```
+
+**Security Note**: The example above pins the Ralph framework to a specific commit SHA for supply chain security. This prevents untrusted code from being executed if the external repository is compromised. Periodically review and update the commit SHA to incorporate Ralph framework improvements while maintaining security.
 
 ---
 
