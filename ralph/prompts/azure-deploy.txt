@@ -1,22 +1,59 @@
-Work in the current repo. Use these files as your source of truth:
-- The PRD JSON file provided as context (do not assume its path)
-- progress.txt
+You are testing the Azure Deploy Copilot Skill (full suite).
 
-You are testing and improving the Azure Deploy Copilot Skill (SKILL.md).
+Source files: PRD JSON (in context), progress.txt
 
-1. Find the highest-priority test scenario to work on (one that has passes: false).
-2. Follow the test steps exactly:
-   - For detection tests: Run the detection logic against the test scenario
-   - For deployment tests: Deploy to Azure and validate via curl
-3. If the test fails, analyze why and fix the skill or test scenario.
-4. If the test passes, update the PRD with passes: true.
-5. Append your progress to progress.txt.
-6. Make a git commit of the changes.
+## SKILL FILES TO EDIT
 
-IMPORTANT:
-- Only work on ONE test scenario per iteration
-- For Azure deployments, always clean up resources after validation
-- Use centralus region for Static Web Apps (eastus not available)
-- Validate deployments by curling the endpoint
+- `SKILL.md` (root) - main skill definition
+- `skills/azure-deploy/SKILL.md` - copy of skill (keep in sync)
+- `reference/*.md` - detailed service guides:
+  - `reference/static-web-apps.md`
+  - `reference/app-service.md`
+  - `reference/functions.md`
+  - `reference/local-preview.md`
+  - `reference/multi-service.md`
 
-If all tests pass, output <promise>COMPLETE</promise>.
+## STEPS
+
+1. Grep PRD for `"passes": false` - if none found, output `<promise>COMPLETE</promise>` and stop.
+2. Take the FIRST failing test.
+3. Execute based on category:
+   - **detection**: Check scenario files against SKILL.md "Phase 1: Application Detection"
+   - **local-preview**: Start dev server per SKILL.md "Phase 2", validate with curl
+   - **deployment**: Deploy to Azure per SKILL.md "Phase 3+", validate with curl, clean up
+
+## IF TEST PASSES
+- Set that PRD item to `"passes": true`
+- Append to progress.txt: `[DATE] PASS: <scenario> - <category>`
+- Git commit: `test: mark <scenario> <category> passing`
+
+## IF TEST FAILS - EDIT THE SKILL
+
+**Find sections by searching for headers (not line numbers):**
+
+Detection fixes:
+- Search `**Node.js / JavaScript / TypeScript:**` for JS patterns
+- Search `**Python:**` for Python patterns
+- Search `### Step 1.3: Detect Multi-Service` for monorepo patterns
+- Add pattern: `├── <signal> → <type> → <Azure Service>`
+
+Local preview fixes:
+- Search `## Phase 2: Local Preview` in SKILL.md
+- Search `reference/local-preview.md` for detailed commands
+
+Deployment fixes:
+- Search `## Static Web Apps Deployment` / `## App Service Deployment` / etc.
+- Update corresponding `reference/<service>.md` for details
+
+**After editing:**
+- Verify fix by re-running the test
+- Keep both SKILL.md files in sync (root and skills/azure-deploy/)
+- Set PRD item to `"passes": true`
+- Append to progress.txt: `[DATE] FIX: <scenario> - <what was fixed>`
+- Git commit: `fix(skill): <description>`
+
+## RULES
+- ONE test per iteration
+- Only output `<promise>COMPLETE</promise>` if zero `"passes": false` remain
+- Use centralus for Static Web Apps
+- Always clean up Azure resources after deployment tests

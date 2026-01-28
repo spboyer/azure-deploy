@@ -87,7 +87,7 @@ case "$mode" in
   detection)
     prompt="ralph/prompts/azure-deploy-detection.txt"
     prd="ralph/plans/prd-azure-deploy-detection.json"
-    profile="locked"  # Detection only needs file access
+    profile="safe"  # Detection only needs file access
     ;;
   deploy)
     prompt="ralph/prompts/azure-deploy-deploy.txt"
@@ -116,6 +116,12 @@ if [[ ! -f "progress.txt" ]]; then
   cp "$SCRIPT_DIR/progress.txt" "progress.txt"
 fi
 
+# Create timestamped branch for this session
+timestamp=$(date +%Y%m%d-%H%M%S)
+branch_name="ralph/${mode}/${timestamp}"
+git checkout -b "$branch_name"
+echo "Branch: $branch_name"
+echo ""
 # Run Ralph
 exec "$RALPH_SCRIPT" \
   --prompt "$prompt" \

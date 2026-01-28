@@ -77,6 +77,7 @@ package.json exists →
 ├── vite.config.* → Vite-based (React/Vue/Svelte) → Static Web Apps
 ├── gatsby-config.js → Gatsby → Static Web Apps
 ├── astro.config.mjs → Astro → Static Web Apps
+├── Has @remix-run/* dependency → Remix → App Service (SSR)
 ├── nest-cli.json → NestJS → App Service
 ├── Has express/fastify/koa/hapi dependency → App Service
 └── No framework, just static build → Static Web Apps
