@@ -590,7 +590,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Copilot CLI
-        run: brew install copilot
+        run: npm i -g @github/copilot
       - name: Clone Ralph Framework
         run: git clone https://github.com/soderlind/ralph ../ralph
       - name: Run Detection Tests
