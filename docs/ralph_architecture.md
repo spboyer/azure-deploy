@@ -257,8 +257,8 @@ workspace/
                                               │  └─────────────────────┘       │
                                               │                                 │
                                               │  No → Continue to next test     │
-                                              │  Yes → Output <promise>         │
-                                              │         COMPLETE</promise>      │
+                                              │  Yes → Output COMPLETE signal   │
+                                              │                                 │
                                               └────────────┬───────────────────┘
                                                            │
                                           ┌────────────────┴────────────────┐
@@ -450,7 +450,7 @@ Validates: Matches expected outcome?
 ```
 Input: Sample application
        ↓
-Create Azure resource group (ralph-test-xyz)
+Create Azure resource group (e.g., ralph-test-react-20260128)
        ↓
 Provision Azure service (Static Web App, App Service, etc.)
        ↓
@@ -588,15 +588,15 @@ jobs:
   ralph-detection:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Copilot CLI
-        run: npm i -g @github/copilot
+        run: brew install copilot
       - name: Clone Ralph Framework
         run: git clone https://github.com/soderlind/ralph ../ralph
       - name: Run Detection Tests
         run: ./ralph/ralph.sh --detection 10
       - name: Upload Progress Log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ralph-progress
           path: ralph/progress.txt
