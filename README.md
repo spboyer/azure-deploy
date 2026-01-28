@@ -186,6 +186,7 @@ Detailed guides are available in the `reference/` folder:
 
 For automated testing and continuous improvement of the Azure Deploy skill, see:
 
+- [Ralph Architecture Overview](./docs/ralph_architecture.md) - Architectural diagrams and process documentation (for developers and executives)
 - [Ralph Loop Configuration Guide](./docs/ralph_loop_configuration.md) - Comprehensive guide for setting up and running automated tests with Ralph
 
 ## Requirements

@@ -2,7 +2,9 @@
 
 This folder contains assets for running automated "Identify → Deploy → Test → Improve" loops using [Ralph](https://github.com/soderlind/ralph).
 
-> **📖 For comprehensive documentation**, see the [Ralph Loop Configuration Guide](../docs/ralph_loop_configuration.md) which includes detailed setup instructions, test modes, best practices, and troubleshooting.
+> **📖 Documentation**:
+> - [Ralph Architecture Overview](../docs/ralph_architecture.md) - Architectural diagrams, process flows, and how Ralph works (for developers and executives)
+> - [Ralph Loop Configuration Guide](../docs/ralph_loop_configuration.md) - Detailed setup instructions, test modes, best practices, and troubleshooting
 
 ## Prerequisites
 
