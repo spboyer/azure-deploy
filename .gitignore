@@ -19,3 +19,6 @@ package-lock.json
 .next/
 screenshots/
 .deployed-urls.txt
+
+# Ralph loop artifacts
+.ralph-*

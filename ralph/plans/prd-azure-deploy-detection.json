@@ -41,7 +41,7 @@
       "Detect as Azure Functions project",
       "Confidence should be HIGH (explicit config)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",
@@ -56,7 +56,7 @@
       "Recommend Static Web Apps",
       "Confidence should be HIGH"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",
@@ -71,7 +71,7 @@
       "Recommend App Service",
       "Confidence should be MEDIUM"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "detection",
@@ -85,6 +85,22 @@
       "Recommend azd + Infrastructure as Code",
       "Confidence should be LOW (needs clarification)"
     ],
-    "passes": false
+    "passes": true
+  },
+  {
+    "category": "detection",
+    "description": "Detect Remix app as App Service (requires SKILL.md update)",
+    "scenario": "test-scenarios/remix-app",
+    "expected_service": "App Service",
+    "expected_confidence": "MEDIUM",
+    "steps": [
+      "Navigate to test-scenarios/remix-app",
+      "Check for package.json with @remix-run/* dependencies",
+      "Note: Remix is NOT in SKILL.md detection rules - must add it",
+      "Add Remix detection pattern to SKILL.md Node.js section",
+      "Recommend App Service (Remix requires SSR)",
+      "Confidence should be MEDIUM (framework detection)"
+    ],
+    "passes": true
   }
 ]

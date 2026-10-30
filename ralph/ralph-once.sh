@@ -73,7 +73,7 @@ case "$mode" in
   detection)
     prompt="ralph/prompts/azure-deploy-detection.txt"
     prd="ralph/plans/prd-azure-deploy-detection.json"
-    profile="locked"
+    profile="safe"
     ;;
   deploy)
     prompt="ralph/prompts/azure-deploy-deploy.txt"
